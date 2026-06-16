@@ -16,6 +16,7 @@ struct pzathy_toolApp: App {
     @StateObject private var library = LibraryStore()
     @StateObject private var player = AudioPlayerManager()
     @StateObject private var ads = AdsManager()
+    @StateObject private var network = NetworkMonitor()
 
     var body: some Scene {
         WindowGroup {
@@ -26,6 +27,7 @@ struct pzathy_toolApp: App {
                 .environmentObject(library)
                 .environmentObject(player)
                 .environmentObject(ads)
+                .environmentObject(network)
         }
     }
 }

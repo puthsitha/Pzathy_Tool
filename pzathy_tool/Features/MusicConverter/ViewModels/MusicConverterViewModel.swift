@@ -13,10 +13,11 @@ final class MusicConverterViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var lastConverted: Track?
 
-    /// Swap this for a backend-backed implementation later — nothing else changes.
+    /// Swap this for your own backend-backed implementation later — nothing else
+    /// changes. Defaults to the real (open-source Piped) extractor.
     private let service: YouTubeAudioService
 
-    init(service: YouTubeAudioService = MockYouTubeAudioService()) {
+    init(service: YouTubeAudioService = PipedYouTubeAudioService()) {
         self.service = service
     }
 
@@ -24,11 +25,18 @@ final class MusicConverterViewModel: ObservableObject {
         !isConverting && YouTubeLink.isValid(link)
     }
 
-    func convert(into library: LibraryStore) async {
+    /// Attempts conversion. Returns `false` (without networking) when offline so
+    /// the caller can surface a "No internet" popup.
+    @discardableResult
+    func convert(into library: LibraryStore, isConnected: Bool = true) async -> Bool {
         errorMessage = nil
         guard YouTubeLink.isValid(link) else {
             errorMessage = "invalid"
-            return
+            return false
+        }
+        guard isConnected else {
+            errorMessage = "offline"
+            return false
         }
         isConverting = true
         defer { isConverting = false }
@@ -38,8 +46,10 @@ final class MusicConverterViewModel: ObservableObject {
             library.add(track)
             lastConverted = track
             link = ""
+            return true
         } catch {
             errorMessage = "convert"
+            return false
         }
     }
 }
