@@ -61,6 +61,9 @@ enum LKey: String {
     case backgroundPlayback, backgroundPlaybackHint
     case artist, unknownArtist, removeFromLibrary, addToPlaylist
     case convertError, invalidLink
+
+    // Connectivity
+    case noInternetTitle, noInternetMessage, offlineBanner, ok
 }
 
 final class LocalizationManager: ObservableObject {
@@ -128,7 +131,12 @@ final class LocalizationManager: ObservableObject {
         .artist: "Artist", .unknownArtist: "Unknown artist",
         .removeFromLibrary: "Remove from library", .addToPlaylist: "Add to playlist",
         .convertError: "Couldn't convert that link. Please try again.",
-        .invalidLink: "Please paste a valid YouTube link."
+        .invalidLink: "Please paste a valid YouTube link.",
+
+        .noInternetTitle: "No Internet Connection",
+        .noInternetMessage: "Please check your connection and try again.",
+        .offlineBanner: "You're offline",
+        .ok: "OK"
     ]
 
     private static let khmer: [LKey: String] = [
@@ -172,6 +180,11 @@ final class LocalizationManager: ObservableObject {
         .artist: "សិល្បករ", .unknownArtist: "សិល្បករមិនស្គាល់",
         .removeFromLibrary: "លុបចេញពីបណ្ណាល័យ", .addToPlaylist: "បន្ថែមទៅបញ្ជីចាក់",
         .convertError: "មិនអាចបម្លែងតំណនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។",
-        .invalidLink: "សូមបិទភ្ជាប់តំណ YouTube ត្រឹមត្រូវ។"
+        .invalidLink: "សូមបិទភ្ជាប់តំណ YouTube ត្រឹមត្រូវ។",
+
+        .noInternetTitle: "គ្មានការតភ្ជាប់អ៊ីនធឺណិត",
+        .noInternetMessage: "សូមពិនិត្យការតភ្ជាប់របស់អ្នក រួចព្យាយាមម្ដងទៀត។",
+        .offlineBanner: "អ្នកកំពុងនៅក្រៅបណ្ដាញ",
+        .ok: "យល់ព្រម"
     ]
 }

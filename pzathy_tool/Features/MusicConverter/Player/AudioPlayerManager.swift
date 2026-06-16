@@ -88,7 +88,7 @@ final class AudioPlayerManager: ObservableObject {
         guard let player = player else { return }
         let target = CMTime(seconds: seconds, preferredTimescale: 600)
         player.seek(to: target) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.currentTime = seconds
                 self?.updateNowPlaying()
             }
@@ -131,7 +131,7 @@ final class AudioPlayerManager: ObservableObject {
 
         // Observe readiness to pull a precise duration.
         statusObserver = item.observe(\.status, options: [.new]) { [weak self] item, _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 if item.status == .readyToPlay {
                     self.isBuffering = false
@@ -145,7 +145,7 @@ final class AudioPlayerManager: ObservableObject {
         // Periodic time updates for the seek bar.
         let interval = CMTime(seconds: 0.5, preferredTimescale: 600)
         timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 self.currentTime = time.seconds
                 self.updateNowPlaying()
@@ -156,7 +156,7 @@ final class AudioPlayerManager: ObservableObject {
         itemEndObserver = NotificationCenter.default.addObserver(
             forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.next() }
+            Task { @MainActor [weak self] in self?.next() }
         }
 
         if autoPlay {
@@ -195,7 +195,7 @@ final class AudioPlayerManager: ObservableObject {
         NotificationCenter.default.addObserver(
             forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 guard let self = self else { return }
                 if !self.backgroundPlaybackEnabled, self.isPlaying {
                     self.togglePlayPause()
@@ -209,22 +209,22 @@ final class AudioPlayerManager: ObservableObject {
     private func setupRemoteCommands() {
         let center = MPRemoteCommandCenter.shared()
         center.playCommand.addTarget { [weak self] _ in
-            Task { @MainActor in if self?.isPlaying == false { self?.togglePlayPause() } }
+            Task { @MainActor [weak self] in if self?.isPlaying == false { self?.togglePlayPause() } }
             return .success
         }
         center.pauseCommand.addTarget { [weak self] _ in
-            Task { @MainActor in if self?.isPlaying == true { self?.togglePlayPause() } }
+            Task { @MainActor [weak self] in if self?.isPlaying == true { self?.togglePlayPause() } }
             return .success
         }
         center.nextTrackCommand.addTarget { [weak self] _ in
-            Task { @MainActor in self?.next() }; return .success
+            Task { @MainActor [weak self] in self?.next() }; return .success
         }
         center.previousTrackCommand.addTarget { [weak self] _ in
-            Task { @MainActor in self?.previous() }; return .success
+            Task { @MainActor [weak self] in self?.previous() }; return .success
         }
         center.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let e = event as? MPChangePlaybackPositionCommandEvent else { return .commandFailed }
-            Task { @MainActor in self?.seek(to: e.positionTime) }
+            Task { @MainActor [weak self] in self?.seek(to: e.positionTime) }
             return .success
         }
     }

@@ -56,18 +56,31 @@ pzathy_tool/
 - **Playlists** (= albums): create, add/remove tracks, play, share.
 - Library, playlists and downloads persist locally between launches.
 
-### ⚠️ The YouTube → MP3 reality (important)
+### YouTube → audio extraction
 
-Real YouTube audio extraction **cannot** be done reliably on-device, and doing it
-directly violates YouTube's Terms of Service and Apple's App Store rules.
-Production apps run extraction on a **backend you control** (e.g. wrapping
-`yt-dlp`) that returns a signed audio URL + metadata.
+The app is built around the `YouTubeAudioService` protocol and ships two
+implementations:
 
-This app is built around that seam: the `YouTubeAudioService` protocol. Today it
-ships `MockYouTubeAudioService`, which returns **real royalty-free audio**
-(SoundHelix) so the whole app — player, downloads, playlists, sharing — works
-end-to-end. To go live, implement `YouTubeAudioService` against your backend and
-inject it where `MusicConverterViewModel` is created. Nothing else changes.
+- **`PipedYouTubeAudioService` (default)** — calls the open-source, free
+  (rate-limited) [Piped](https://github.com/TeamPiped/Piped) API on public
+  instances. It returns **real** title, artist, duration, thumbnail and a
+  direct, AVPlayer-compatible (MP4/M4A) audio stream URL — no API key required.
+  It automatically tries multiple instances and falls back to the mock when
+  every instance is unreachable, so conversion always yields something playable.
+- **`MockYouTubeAudioService`** — returns **royalty-free audio** (SoundHelix)
+  so the player, downloads, playlists and sharing all work even fully offline.
+
+> ⚠️ Public Piped instances are community-run and rate-limited, and on-device
+> extraction can run afoul of YouTube's Terms of Service and Apple's App Store
+> rules. For a production launch, host your own Piped / Invidious / `yt-dlp`
+> backend and point `PipedYouTubeAudioService.instances` at it — nothing else
+> changes.
+
+### Connectivity
+
+A lightweight `NetworkMonitor` (`NWPathMonitor`) publishes an `isConnected`
+flag. The Music Converter shows an inline "offline" banner while disconnected
+and a **"No Internet Connection"** alert if you try to convert with no network.
 
 ## Ads (prepared, hidden)
 

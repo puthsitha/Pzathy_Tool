@@ -12,12 +12,15 @@ struct MusicConverterView: View {
     @EnvironmentObject private var library: LibraryStore
     @EnvironmentObject private var player: AudioPlayerManager
     @EnvironmentObject private var loc: LocalizationManager
+    @EnvironmentObject private var network: NetworkMonitor
 
     @StateObject private var vm = MusicConverterViewModel()
 
     private enum Tab: Hashable { case songs, playlists }
     @State private var tab: Tab = .songs
     @State private var shareTracks: [Track]?
+    @State private var showNoInternet = false
+    @FocusState private var linkFieldFocused: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,8 +30,22 @@ struct MusicConverterView: View {
             content
         }
         .background(AppColor.background.ignoresSafeArea())
+        // Tap anywhere outside the field to dismiss the keyboard.
+        .contentShape(Rectangle())
+        .onTapGesture { linkFieldFocused = false }
         .navigationTitle(loc.t(.musicConverter))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(loc.t(.done)) { linkFieldFocused = false }
+            }
+        }
+        .alert(loc.t(.noInternetTitle), isPresented: $showNoInternet) {
+            Button(loc.t(.ok), role: .cancel) {}
+        } message: {
+            Text(loc.t(.noInternetMessage))
+        }
         .sheet(item: Binding(
             get: { shareTracks.map { ShareBox(tracks: $0) } },
             set: { shareTracks = $0?.tracks }
@@ -47,6 +64,9 @@ struct MusicConverterView: View {
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
                     .keyboardType(.URL)
+                    .submitLabel(.go)
+                    .focused($linkFieldFocused)
+                    .onSubmit(startConvert)
                 if !vm.link.isEmpty {
                     Button { vm.link = "" } label: {
                         Image(systemName: "xmark.circle.fill").foregroundColor(AppColor.tertiaryText)
@@ -57,9 +77,7 @@ struct MusicConverterView: View {
             .background(AppColor.surfaceElevated)
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-            Button {
-                Task { await vm.convert(into: library) }
-            } label: {
+            Button(action: startConvert) {
                 HStack {
                     if vm.isConverting {
                         ProgressView().tint(.white)
@@ -78,12 +96,48 @@ struct MusicConverterView: View {
             .disabled(!vm.canConvert)
 
             if let error = vm.errorMessage {
-                Text(error == "invalid" ? loc.t(.invalidLink) : loc.t(.convertError))
+                Text(errorText(for: error))
                     .font(.caption).foregroundColor(.red)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            if !network.isConnected {
+                offlineBanner
+            }
         }
         .padding(16)
+    }
+
+    private var offlineBanner: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "wifi.slash")
+            Text(loc.t(.offlineBanner))
+            Spacer()
+        }
+        .font(.caption.weight(.medium))
+        .foregroundColor(.orange)
+        .padding(.vertical, 8).padding(.horizontal, 12)
+        .frame(maxWidth: .infinity)
+        .background(Color.orange.opacity(0.12))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private func errorText(for code: String) -> String {
+        switch code {
+        case "invalid": return loc.t(.invalidLink)
+        case "offline": return loc.t(.noInternetMessage)
+        default:        return loc.t(.convertError)
+        }
+    }
+
+    /// Dismisses the keyboard, guards on connectivity, then runs the conversion.
+    private func startConvert() {
+        linkFieldFocused = false
+        guard network.isConnected else {
+            showNoInternet = true
+            return
+        }
+        Task { await vm.convert(into: library, isConnected: network.isConnected) }
     }
 
     private var picker: some View {
