@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct User: Identifiable, Codable, Equatable {
     let id: String

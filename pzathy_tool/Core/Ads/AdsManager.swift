@@ -10,6 +10,7 @@
 //
 
 import SwiftUI
+import Combine
 
 final class AdsManager: ObservableObject {
     /// Master switch. Keep false until ads are actually integrated & approved.
