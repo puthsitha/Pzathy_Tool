@@ -25,7 +25,9 @@ final class MusicConverterViewModel: ObservableObject {
     }
 
     /// Picks the backend client when a server URL is set, else Piped.
-    static func defaultService() -> YouTubeAudioService {
+    /// `nonisolated` so it can be used as a default argument (those expressions
+    /// are evaluated outside the main actor).
+    nonisolated static func defaultService() -> YouTubeAudioService {
         BackendConfig.isConfigured
             ? BackendYouTubeAudioService(fallback: PipedYouTubeAudioService())
             : PipedYouTubeAudioService()
