@@ -13,12 +13,22 @@ final class MusicConverterViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var lastConverted: Track?
 
-    /// Swap this for your own backend-backed implementation later — nothing else
-    /// changes. Defaults to the real (open-source Piped) extractor.
+    /// The active extractor. Resolved automatically:
+    ///   • If your conversion backend is configured (`BackendConfig`), use it
+    ///     (true y2mate-style: real MP3 from a server you control), falling back
+    ///     to Piped if the backend is unreachable.
+    ///   • Otherwise use the open-source Piped extractor as before.
     private let service: YouTubeAudioService
 
-    init(service: YouTubeAudioService = PipedYouTubeAudioService()) {
+    init(service: YouTubeAudioService = MusicConverterViewModel.defaultService()) {
         self.service = service
+    }
+
+    /// Picks the backend client when a server URL is set, else Piped.
+    static func defaultService() -> YouTubeAudioService {
+        BackendConfig.isConfigured
+            ? BackendYouTubeAudioService(fallback: PipedYouTubeAudioService())
+            : PipedYouTubeAudioService()
     }
 
     var canConvert: Bool {
