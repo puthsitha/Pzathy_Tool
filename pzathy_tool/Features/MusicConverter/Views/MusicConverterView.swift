@@ -87,7 +87,7 @@ struct MusicConverterView: View {
                         Text(loc.t(.convert))
                     }
                 }
-                .fontWeight(.semibold)
+                .font(.body.weight(.semibold))
                 .frame(maxWidth: .infinity).padding(.vertical, 13)
             }
             .background(vm.canConvert ? AppColor.accent : AppColor.accent.opacity(0.5))
