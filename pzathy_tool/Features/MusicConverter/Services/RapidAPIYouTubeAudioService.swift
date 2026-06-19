@@ -58,10 +58,11 @@ enum RapidAPIConfig {
     /// "low" | "high" — passed straight through as the `quality` query item.
     static let quality = "low"
 
-    /// When true the API holds the request until the file is ready (works for
-    /// videos ≤ 15 min). We poll either way, so this mainly trades a longer
-    /// single request for fewer client-side polls.
-    static let waitUntilReady = true
+    /// When true the API holds the request open until the file is ready (up to
+    /// ~300 s), which is fragile and prone to URLSession timeouts. We poll for
+    /// readiness ourselves, so `false` is safer: the API returns the link
+    /// immediately and we wait via lightweight HEAD polls instead.
+    static let waitUntilReady = false
 
     /// Max seconds to wait for the encoded file to become reachable.
     static let maxWaitSeconds: TimeInterval = 300
@@ -189,14 +190,22 @@ final class RapidAPIYouTubeAudioService: YouTubeAudioService {
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        // wait_until_the_file_is_ready=true keeps the request open up to ~300 s.
-        request.timeoutInterval = maxWaitSeconds + 30
+        // With wait=false the API responds quickly; with wait=true it can hold
+        // the connection open while encoding, so allow the full window + slack.
+        request.timeoutInterval = waitUntilReady ? maxWaitSeconds + 30 : 30
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(host, forHTTPHeaderField: "x-rapidapi-host")
         request.setValue(apiKey, forHTTPHeaderField: "x-rapidapi-key")
 
         let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+        guard let http = response as? HTTPURLResponse else {
+            throw YouTubeServiceError.extractionFailed
+        }
+        guard (200..<300).contains(http.statusCode) else {
+            #if DEBUG
+            let body = String(data: data, encoding: .utf8) ?? ""
+            print("[RapidAPI] \(http.statusCode) for \(url.absoluteString)\n\(body)")
+            #endif
             throw YouTubeServiceError.extractionFailed
         }
         return try JSONDecoder().decode(RapidAPILinkResponse.self, from: data)
@@ -217,14 +226,28 @@ final class RapidAPIYouTubeAudioService: YouTubeAudioService {
     }
 
     private func isReachable(_ url: URL) async -> Bool {
+        // Try HEAD first; if the file host rejects HEAD (405/403), fall back to a
+        // tiny ranged GET so we still detect readiness without downloading it all.
+        if let status = await statusCode(for: url, method: "HEAD") {
+            if (200..<300).contains(status) { return true }
+            if status == 404 { return false } // still encoding
+        }
+        if let status = await statusCode(for: url, method: "GET", rangeFirstByte: true) {
+            return (200..<300).contains(status)
+        }
+        return false
+    }
+
+    private func statusCode(for url: URL, method: String, rangeFirstByte: Bool = false) async -> Int? {
         var request = URLRequest(url: url)
-        request.httpMethod = "HEAD"
+        request.httpMethod = method
         request.timeoutInterval = 15
+        if rangeFirstByte { request.setValue("bytes=0-0", forHTTPHeaderField: "Range") }
         guard let (_, response) = try? await session.data(for: request),
               let http = response as? HTTPURLResponse else {
-            return false
+            return nil
         }
-        return (200..<300).contains(http.statusCode)
+        return http.statusCode
     }
 
     private func fetchMetadata(videoID: String) async -> OEmbedResponse? {

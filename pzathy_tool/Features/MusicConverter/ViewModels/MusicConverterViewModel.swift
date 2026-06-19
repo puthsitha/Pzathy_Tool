@@ -29,11 +29,18 @@ final class MusicConverterViewModel: ObservableObject {
     /// are evaluated outside the main actor).
     nonisolated static func defaultService() -> YouTubeAudioService {
         if RapidAPIConfig.isConfigured {
+            #if DEBUG
+            print("[MusicConverter] Using RapidAPI extractor (key loaded).")
+            #endif
             return RapidAPIYouTubeAudioService(fallback: PipedYouTubeAudioService())
         }
         if BackendConfig.isConfigured {
             return BackendYouTubeAudioService(fallback: PipedYouTubeAudioService())
         }
+        #if DEBUG
+        print("[MusicConverter] No RapidAPI key found — falling back to Piped. "
+            + "Check that RapidAPIKey is in the built Info.plist (Secrets.local.xcconfig → RAPIDAPI_KEY).")
+        #endif
         return PipedYouTubeAudioService()
     }
 
