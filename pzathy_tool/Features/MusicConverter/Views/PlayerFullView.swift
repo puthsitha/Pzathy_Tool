@@ -118,7 +118,13 @@ struct PlayerFullView: View {
     }
 
     private var transportControls: some View {
-        HStack(spacing: 36) {
+        HStack(spacing: 24) {
+            Button { player.toggleShuffle() } label: {
+                Image(systemName: "shuffle").font(.title3)
+                    .foregroundColor(player.isShuffle ? AppColor.accent : AppColor.primaryText)
+            }
+            .accessibilityLabel(loc.t(.shuffle))
+
             Button { player.previous() } label: {
                 Image(systemName: "backward.fill").font(.title2)
             }
@@ -130,6 +136,13 @@ struct PlayerFullView: View {
             Button { player.next() } label: {
                 Image(systemName: "forward.fill").font(.title2)
             }
+
+            Button { player.cycleRepeatMode() } label: {
+                Image(systemName: player.repeatMode == .one ? "repeat.1" : "repeat")
+                    .font(.title3)
+                    .foregroundColor(player.repeatMode == .off ? AppColor.primaryText : AppColor.accent)
+            }
+            .accessibilityLabel(loc.t(.repeatTrack))
         }
         .foregroundColor(AppColor.primaryText)
     }

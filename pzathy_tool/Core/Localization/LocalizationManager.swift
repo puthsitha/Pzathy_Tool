@@ -57,6 +57,7 @@ enum LKey: String {
     case pasteYoutubeLink, convert, converting, addToLibrary
     case library, playlists, songs, nowPlaying, queue
     case download, downloaded, downloading, share, play, pause, stop
+    case shuffle, repeatTrack
     case createPlaylist, playlistName, newPlaylist, emptyLibrary, emptyLibraryHint
     case backgroundPlayback, backgroundPlaybackHint
     case artist, unknownArtist, removeFromLibrary, addToPlaylist
@@ -122,6 +123,7 @@ final class LocalizationManager: ObservableObject {
         .nowPlaying: "Now Playing", .queue: "Queue",
         .download: "Download", .downloaded: "Downloaded", .downloading: "Downloading…",
         .share: "Share", .play: "Play", .pause: "Pause", .stop: "Stop",
+        .shuffle: "Shuffle", .repeatTrack: "Repeat",
         .createPlaylist: "Create playlist", .playlistName: "Playlist name",
         .newPlaylist: "New Playlist",
         .emptyLibrary: "Your library is empty",
@@ -171,6 +173,7 @@ final class LocalizationManager: ObservableObject {
         .nowPlaying: "កំពុងចាក់", .queue: "ជួរ",
         .download: "ទាញយក", .downloaded: "បានទាញយក", .downloading: "កំពុងទាញយក…",
         .share: "ចែករំលែក", .play: "ចាក់", .pause: "ផ្អាក", .stop: "បញ្ឈប់",
+        .shuffle: "ច្របល់", .repeatTrack: "ចាក់ឡើងវិញ",
         .createPlaylist: "បង្កើតបញ្ជីចាក់", .playlistName: "ឈ្មោះបញ្ជីចាក់",
         .newPlaylist: "បញ្ជីចាក់ថ្មី",
         .emptyLibrary: "បណ្ណាល័យរបស់អ្នកទទេ",
