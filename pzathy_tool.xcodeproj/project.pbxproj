@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		148978CD2FE049750096539D /* pzathy_tool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pzathy_tool.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		14C0F1A02FE049770096539D /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +33,7 @@
 		148978C42FE049750096539D = {
 			isa = PBXGroup;
 			children = (
+				14C0F1A02FE049770096539D /* Secrets.xcconfig */,
 				148978CF2FE049750096539D /* pzathy_tool */,
 				148978CE2FE049750096539D /* Products */,
 			);
@@ -127,6 +129,7 @@
 /* Begin XCBuildConfiguration section */
 		148978D62FE049770096539D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14C0F1A02FE049770096539D /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -191,6 +194,7 @@
 		};
 		148978D72FE049770096539D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14C0F1A02FE049770096539D /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -250,6 +254,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_KEY_RapidAPIKey = "$(RAPIDAPI_KEY)";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -283,6 +288,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_KEY_RapidAPIKey = "$(RAPIDAPI_KEY)";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
