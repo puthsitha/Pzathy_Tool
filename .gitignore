@@ -1,0 +1,10 @@
+# Local secrets — never commit real API keys
+Secrets.local.xcconfig
+
+# macOS / Xcode
+.DS_Store
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+build/
+DerivedData/

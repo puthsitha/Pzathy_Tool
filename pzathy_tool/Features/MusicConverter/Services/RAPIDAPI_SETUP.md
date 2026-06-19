@@ -14,18 +14,28 @@ key is available; with no key it falls back to the open-source Piped extractor.
    `RAPIDAPI_KEY = <your key>`.
 2. **Info.plist key `RapidAPIKey`** — for builds you ship/share.
 
-### Wiring Info.plist without committing the key (recommended)
+### Wiring via .xcconfig (already scaffolded in this repo — recommended)
 
-1. Create `Secrets.xcconfig` (add it to `.gitignore`):
+The project is already wired so you only need to drop in your key:
+
+1. Copy the example to the gitignored local file and add your key:
+   ```sh
+   cp Secrets.local.xcconfig.example Secrets.local.xcconfig
+   # edit Secrets.local.xcconfig → RAPIDAPI_KEY = your_real_key
    ```
-   RAPIDAPI_KEY = your_key_here
-   ```
-2. Set the target's build configuration to use that `.xcconfig`.
-3. In `Info.plist` add:
-   ```xml
-   <key>RapidAPIKey</key>
-   <string>$(RAPIDAPI_KEY)</string>
-   ```
+2. Build & run. That's it.
+
+How it's wired (for reference):
+- `Secrets.xcconfig` (committed, no secret) is set as the project's
+  **base configuration** for Debug & Release. It `#include?`s
+  `Secrets.local.xcconfig` (gitignored) and defaults `RAPIDAPI_KEY` to empty.
+- The build setting `INFOPLIST_KEY_RapidAPIKey = $(RAPIDAPI_KEY)` injects the
+  value into the generated Info.plist (this target uses
+  `GENERATE_INFOPLIST_FILE = YES`, so there's no Info.plist file to edit).
+- `RapidAPIConfig` reads `Bundle.main.object(forInfoDictionaryKey: "RapidAPIKey")`.
+
+With no `Secrets.local.xcconfig` (fresh clone / CI), the key is empty and the
+app falls back to the Piped extractor — no build break.
 
 ## How it works
 
