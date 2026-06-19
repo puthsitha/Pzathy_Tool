@@ -29,9 +29,12 @@ How it's wired (for reference):
 - `Secrets.xcconfig` (committed, no secret) is set as the project's
   **base configuration** for Debug & Release. It `#include?`s
   `Secrets.local.xcconfig` (gitignored) and defaults `RAPIDAPI_KEY` to empty.
-- The build setting `INFOPLIST_KEY_RapidAPIKey = $(RAPIDAPI_KEY)` injects the
-  value into the generated Info.plist (this target uses
-  `GENERATE_INFOPLIST_FILE = YES`, so there's no Info.plist file to edit).
+- `Info.plist` (repo root) holds `RapidAPIKey = $(RAPIDAPI_KEY)`. The target
+  sets `INFOPLIST_FILE = Info.plist` while keeping `GENERATE_INFOPLIST_FILE = YES`,
+  so Xcode merges its generated keys with this file's custom key. (A custom key
+  can't be injected through the `INFOPLIST_KEY_` prefix — the generator only
+  emits its own known keys, which is why an explicit Info.plist is needed.)
+- During "Process Info.plist", Xcode expands `$(RAPIDAPI_KEY)` from the xcconfig.
 - `RapidAPIConfig` reads `Bundle.main.object(forInfoDictionaryKey: "RapidAPIKey")`.
 
 With no `Secrets.local.xcconfig` (fresh clone / CI), the key is empty and the
