@@ -28,6 +28,13 @@ struct pzathy_toolApp: App {
                 .environmentObject(player)
                 .environmentObject(ads)
                 .environmentObject(network)
+                .onAppear {
+                    // Let the player backfill durations into the library when it
+                    // resolves a precise value during playback.
+                    player.onDurationResolved = { [weak library] id, duration in
+                        library?.updateDuration(duration, forTrackID: id)
+                    }
+                }
         }
     }
 }

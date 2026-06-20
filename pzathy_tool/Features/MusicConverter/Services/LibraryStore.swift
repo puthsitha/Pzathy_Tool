@@ -55,6 +55,18 @@ final class LibraryStore: ObservableObject {
         tracks.first { $0.id == id }
     }
 
+    /// Backfills a track's duration once it's actually known. Conversion services
+    /// often return 0 (RapidAPI doesn't report it; Piped sometimes omits it), so
+    /// the asset probe and the player both call this to fix the displayed time.
+    /// No-ops unless the new value is finite, positive and meaningfully different.
+    func updateDuration(_ duration: TimeInterval, forTrackID id: String) {
+        guard duration.isFinite, duration > 0,
+              let idx = tracks.firstIndex(where: { $0.id == id }),
+              abs(tracks[idx].duration - duration) > 0.5 else { return }
+        tracks[idx].duration = duration
+        persistTracks()
+    }
+
     // MARK: - Playlists
 
     func createPlaylist(name: String) {
