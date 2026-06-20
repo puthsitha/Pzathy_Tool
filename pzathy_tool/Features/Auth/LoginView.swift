@@ -60,6 +60,7 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
             }
         }
+        .logPage("Login")
     }
 
     private var header: some View {

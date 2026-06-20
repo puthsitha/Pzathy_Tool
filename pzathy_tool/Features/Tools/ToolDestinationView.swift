@@ -47,5 +47,6 @@ struct ComingSoonView: View {
         .background(AppColor.background.ignoresSafeArea())
         .navigationTitle(tool.name)
         .navigationBarTitleDisplayMode(.inline)
+        .logPage("Coming Soon › \(tool.name)")
     }
 }

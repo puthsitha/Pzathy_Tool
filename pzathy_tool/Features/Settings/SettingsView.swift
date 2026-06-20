@@ -27,6 +27,7 @@ struct SettingsView: View {
             .navigationTitle(loc.t(.settings))
         }
         .navigationViewStyle(.stack)
+        .logPage("Settings")
         .confirmationDialog(loc.t(.logoutConfirm), isPresented: $showLogoutConfirm, titleVisibility: .visible) {
             Button(loc.t(.logout), role: .destructive) { auth.logout() }
             Button(loc.t(.cancel), role: .cancel) {}

@@ -169,7 +169,7 @@ final class BackendYouTubeAudioService: YouTubeAudioService {
         )
         request.httpBody = try JSONEncoder().encode(body)
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await session.loggedData(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw YouTubeServiceError.extractionFailed
         }
