@@ -5,6 +5,7 @@
 
 import Foundation
 import Combine
+import AVFoundation
 
 @MainActor
 final class MusicConverterViewModel: ObservableObject {
@@ -69,10 +70,32 @@ final class MusicConverterViewModel: ObservableObject {
             library.add(track)
             lastConverted = track
             link = ""
+
+            // Some extractors (RapidAPI, occasionally Piped) don't report a
+            // duration, leaving the row stuck at 0:00. Probe the audio asset in
+            // the background and backfill it so the time shows without playing.
+            if track.duration <= 0 {
+                Task { [weak library] in
+                    let seconds = await Self.assetDuration(for: track.playbackURL)
+                    if seconds > 0 { library?.updateDuration(seconds, forTrackID: track.id) }
+                }
+            }
             return true
         } catch {
             errorMessage = "convert"
             return false
+        }
+    }
+
+    /// Loads an audio asset's duration (seconds) without downloading the whole
+    /// file. iOS 15-compatible; returns 0 when the duration can't be determined.
+    nonisolated private static func assetDuration(for url: URL) async -> TimeInterval {
+        let asset = AVURLAsset(url: url)
+        return await withCheckedContinuation { continuation in
+            asset.loadValuesAsynchronously(forKeys: ["duration"]) {
+                let seconds = asset.duration.seconds
+                continuation.resume(returning: seconds.isFinite && seconds > 0 ? seconds : 0)
+            }
         }
     }
 }

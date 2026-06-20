@@ -49,6 +49,10 @@ final class AudioPlayerManager: ObservableObject {
         }
     }
 
+    /// Called when a precise duration is resolved for the current track, so the
+    /// library can backfill durations the conversion service didn't provide.
+    var onDurationResolved: (@MainActor (_ trackID: String, _ duration: TimeInterval) -> Void)?
+
     private static let bgKey = "player.backgroundEnabled"
     private static let repeatKey = "player.repeatMode"
     private static let shuffleKey = "player.shuffle"
@@ -248,6 +252,10 @@ final class AudioPlayerManager: ObservableObject {
         if abs(d - duration) > 0.5 {
             duration = d
             updateNowPlaying()
+        }
+        // Persist the precise duration back to the library (no-ops if unchanged).
+        if let id = currentTrack?.id {
+            onDurationResolved?(id, d)
         }
     }
 
