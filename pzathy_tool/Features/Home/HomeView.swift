@@ -28,6 +28,7 @@ struct HomeView: View {
             .navigationTitle(loc.t(.home))
         }
         .navigationViewStyle(.stack)
+        .logPage("Home")
     }
 
     private var greeting: some View {

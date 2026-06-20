@@ -197,7 +197,7 @@ final class RapidAPIYouTubeAudioService: YouTubeAudioService {
         request.setValue(host, forHTTPHeaderField: "x-rapidapi-host")
         request.setValue(apiKey, forHTTPHeaderField: "x-rapidapi-key")
 
-        let (data, response) = try await session.data(for: request)
+        let (data, response) = try await session.loggedData(for: request)
         guard let http = response as? HTTPURLResponse else {
             throw YouTubeServiceError.extractionFailed
         }
@@ -243,7 +243,7 @@ final class RapidAPIYouTubeAudioService: YouTubeAudioService {
         request.httpMethod = method
         request.timeoutInterval = 15
         if rangeFirstByte { request.setValue("bytes=0-0", forHTTPHeaderField: "Range") }
-        guard let (_, response) = try? await session.data(for: request),
+        guard let (_, response) = try? await session.loggedData(for: request),
               let http = response as? HTTPURLResponse else {
             return nil
         }
@@ -260,7 +260,7 @@ final class RapidAPIYouTubeAudioService: YouTubeAudioService {
 
         var request = URLRequest(url: url)
         request.timeoutInterval = 10
-        guard let (data, response) = try? await session.data(for: request),
+        guard let (data, response) = try? await session.loggedData(for: request),
               let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
             return nil
         }

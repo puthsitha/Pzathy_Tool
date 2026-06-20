@@ -29,6 +29,7 @@ struct ToolsView: View {
             .searchable(text: $search, prompt: loc.t(.search))
         }
         .navigationViewStyle(.stack)
+        .logPage("Tools")
     }
 
     private var filteredFields: [ToolField] {
@@ -102,6 +103,7 @@ struct FieldDetailView: View {
         .background(AppColor.background.ignoresSafeArea())
         .navigationTitle(field.name)
         .navigationBarTitleDisplayMode(.inline)
+        .logPage("Tools › \(field.name)")
     }
 }
 

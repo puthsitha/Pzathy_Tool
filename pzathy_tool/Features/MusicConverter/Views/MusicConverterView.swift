@@ -35,6 +35,7 @@ struct MusicConverterView: View {
         .onTapGesture { linkFieldFocused = false }
         .navigationTitle(loc.t(.musicConverter))
         .navigationBarTitleDisplayMode(.inline)
+        .logPage("Music Converter")
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
