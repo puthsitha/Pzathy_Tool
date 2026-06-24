@@ -34,6 +34,9 @@ struct MainTabView: View {
                     PlayerBarView()
                 }
                 .padding(.bottom, 49 + geo.safeAreaInsets.bottom)
+                // Keep the bar pinned above the tab bar; don't let the keyboard
+                // push it up to the top of the screen.
+                .ignoresSafeArea(.keyboard, edges: .bottom)
                 .animation(.easeInOut(duration: 0.2), value: player.isActive)
             }
         }
