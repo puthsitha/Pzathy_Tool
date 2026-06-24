@@ -4,19 +4,13 @@
 //
 //  Abstraction over "turn a YouTube link into a playable/downloadable audio track".
 //
-//  We ship two implementations:
+//  • `PipedYouTubeAudioService` — talks to the open-source, free (rate-limited)
+//    Piped API (https://github.com/TeamPiped/Piped). Piped runs yt-dlp-style
+//    extraction on public instances and returns real metadata plus direct,
+//    proxied audio stream URLs that AVPlayer can play. No API key needed.
 //
-//  • `PipedYouTubeAudioService` (default) — talks to the open-source, free
-//    (rate-limited) Piped API (https://github.com/TeamPiped/Piped). Piped runs
-//    yt-dlp-style extraction on public instances and returns real metadata plus
-//    direct, proxied audio stream URLs that AVPlayer can play. No API key needed.
-//
-//  • `MockYouTubeAudioService` — returns royalty-free audio so the whole app
-//    (player, downloads, playlists, sharing) keeps working when every public
-//    instance is down or unreachable.
-//
-//  `PipedYouTubeAudioService` falls back to the mock automatically when the
-//  network call fails, so conversion always yields something playable.
+//  When extraction fails (every instance down, no fallback configured) the call
+//  throws so the UI can surface a real error instead of a placeholder track.
 //
 //  ⚠️ Note: public Piped instances are community-run and rate-limited. For a
 //  production launch, host your own Piped/Invidious/yt-dlp backend and point
@@ -97,15 +91,16 @@ final class PipedYouTubeAudioService: YouTubeAudioService {
 
     /// Public Piped API instances, tried in order. Swap for your own backend in prod.
     private let instances: [String]
-    /// Used so conversion still produces playable audio if every instance fails.
-    private let fallback: YouTubeAudioService
+    /// Optional secondary extractor if every instance fails. When `nil`, a failure
+    /// surfaces as an error instead of silently returning a placeholder track.
+    private let fallback: YouTubeAudioService?
 
     init(instances: [String] = [
             "https://pipedapi.kavin.rocks",
             "https://pipedapi.adminforge.de",
             "https://api.piped.private.coffee"
          ],
-         fallback: YouTubeAudioService = MockYouTubeAudioService()) {
+         fallback: YouTubeAudioService? = nil) {
         self.instances = instances
         self.fallback = fallback
     }
@@ -129,8 +124,12 @@ final class PipedYouTubeAudioService: YouTubeAudioService {
             }
         }
 
-        // Every instance failed — fall back to royalty-free audio so the app still works.
-        return try await fallback.resolve(link: link)
+        // Every instance failed. Use the fallback extractor if one was provided,
+        // otherwise surface the failure so the UI can show an error.
+        if let fallback = fallback {
+            return try await fallback.resolve(link: link)
+        }
+        throw YouTubeServiceError.extractionFailed
     }
 
     private func fetchTrack(from url: URL, videoID: String, link: String) async throws -> Track? {
@@ -182,49 +181,5 @@ final class PipedYouTubeAudioService: YouTubeAudioService {
         let compatible = streams.filter(isCompatible)
         let pool = compatible.isEmpty ? streams : compatible
         return pool.max { ($0.bitrate ?? 0) < ($1.bitrate ?? 0) }
-    }
-}
-
-// MARK: - Mock implementation (offline-safe fallback)
-
-final class MockYouTubeAudioService: YouTubeAudioService {
-
-    // Royalty-free streams (SoundHelix) used so playback genuinely works in the demo.
-    private static let samples: [(title: String, artist: String, duration: TimeInterval, stream: String)] = [
-        ("The Neverwritten Role", "MusiQue",      372, "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"),
-        ("Midnight Drive",        "Aria Wells",    426, "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"),
-        ("Golden Hour",           "Leo Hart",      349, "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"),
-        ("Paper Boats",           "Niko & The Sea", 295, "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"),
-        ("Echoes of You",         "Mira Solène",   401, "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"),
-        ("City Lights",           "The Foxgloves", 318, "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3")
-    ]
-
-    func resolve(link: String) async throws -> Track {
-        guard let videoID = YouTubeLink.videoID(from: link) else {
-            throw YouTubeServiceError.invalidURL
-        }
-
-        // Simulate network/extraction latency.
-        try? await Task.sleep(nanoseconds: 1_200_000_000)
-
-        // Pick a deterministic sample based on the video id so the same link is stable.
-        let index = abs(videoID.hashValue) % Self.samples.count
-        let sample = Self.samples[index]
-
-        guard let stream = URL(string: sample.stream) else {
-            throw YouTubeServiceError.extractionFailed
-        }
-
-        return Track(
-            id: videoID,
-            title: sample.title,
-            artist: sample.artist,
-            details: "Converted from YouTube • \(videoID)",
-            thumbnailURL: URL(string: "https://img.youtube.com/vi/\(videoID)/hqdefault.jpg"),
-            sourceURL: URL(string: link.trimmingCharacters(in: .whitespacesAndNewlines)),
-            streamURL: stream,
-            duration: sample.duration,
-            downloadedFileName: nil
-        )
     }
 }

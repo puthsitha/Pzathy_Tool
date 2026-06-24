@@ -20,6 +20,7 @@ struct MusicConverterView: View {
     @State private var tab: Tab = .songs
     @State private var shareTracks: [Track]?
     @State private var showNoInternet = false
+    @State private var showConvertError = false
     @FocusState private var linkFieldFocused: Bool
 
     var body: some View {
@@ -46,6 +47,11 @@ struct MusicConverterView: View {
             Button(loc.t(.ok), role: .cancel) {}
         } message: {
             Text(loc.t(.noInternetMessage))
+        }
+        .alert(loc.t(.convertErrorTitle), isPresented: $showConvertError) {
+            Button(loc.t(.ok), role: .cancel) {}
+        } message: {
+            Text(loc.t(.convertError))
         }
         .sheet(item: Binding(
             get: { shareTracks.map { ShareBox(tracks: $0) } },
@@ -96,8 +102,10 @@ struct MusicConverterView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             .disabled(!vm.canConvert)
 
-            if let error = vm.errorMessage {
-                Text(errorText(for: error))
+            // Inline hint only for immediate input validation. Processing/network
+            // failures are surfaced via the Conversion Failed alert instead.
+            if vm.errorMessage == "invalid" {
+                Text(loc.t(.invalidLink))
                     .font(.caption).foregroundColor(.red)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -123,22 +131,20 @@ struct MusicConverterView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
-    private func errorText(for code: String) -> String {
-        switch code {
-        case "invalid": return loc.t(.invalidLink)
-        case "offline": return loc.t(.noInternetMessage)
-        default:        return loc.t(.convertError)
-        }
-    }
-
     /// Dismisses the keyboard, guards on connectivity, then runs the conversion.
+    /// A processing/extraction failure pops the Conversion Failed alert.
     private func startConvert() {
         linkFieldFocused = false
         guard network.isConnected else {
             showNoInternet = true
             return
         }
-        Task { await vm.convert(into: library, isConnected: network.isConnected) }
+        Task {
+            let ok = await vm.convert(into: library, isConnected: network.isConnected)
+            if !ok, vm.errorMessage == "convert" {
+                showConvertError = true
+            }
+        }
     }
 
     private var picker: some View {
