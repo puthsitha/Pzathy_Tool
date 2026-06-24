@@ -76,13 +76,13 @@ final class MusicConverterViewModel: ObservableObject {
             // the background and backfill it so the time shows without playing.
             if track.duration <= 0 {
                 #if DEBUG
-                print("[Duration] track.duration is 0 for '\(track.title)' (id: \(track.id)) — probing asset…")
+                print("[Duration] track.duration is 0 for '\(track.title)' (id: \(track.id)) — probing…")
                 print("[Duration] playbackURL: \(track.playbackURL)")
                 #endif
                 Task { [weak library] in
-                    let seconds = await Self.assetDuration(for: track.playbackURL)
+                    let seconds = await Self.resolveDuration(for: track)
                     #if DEBUG
-                    print("[Duration] assetDuration result: \(seconds)s for id: \(track.id)")
+                    print("[Duration] resolved: \(seconds)s for id: \(track.id)")
                     #endif
                     if seconds > 0 { library?.updateDuration(seconds, forTrackID: track.id) }
                 }
@@ -98,6 +98,23 @@ final class MusicConverterViewModel: ObservableObject {
         }
     }
 
+    /// Try asset-header probe first; if the CDN doesn't expose duration headers
+    /// (timescale 0 → nan), fall back to the Piped API using the YouTube video ID.
+    nonisolated private static func resolveDuration(for track: Track) async -> TimeInterval {
+        // 1. Asset probe (fast, works when server sends Content-Duration / mp4 moov)
+        let assetSeconds = await assetDuration(for: track.playbackURL)
+        #if DEBUG
+        print("[Duration] assetDuration probe: \(assetSeconds)s")
+        #endif
+        if assetSeconds > 0 { return assetSeconds }
+
+        // 2. Piped API using the YouTube video ID
+        #if DEBUG
+        print("[Duration] asset probe returned 0 — falling back to Piped API for id: \(track.id)")
+        #endif
+        return await pipedDuration(forVideoID: track.id)
+    }
+
     /// Loads an audio asset's duration (seconds) without downloading the whole
     /// file. iOS 15-compatible; returns 0 when the duration can't be determined.
     nonisolated private static func assetDuration(for url: URL) async -> TimeInterval {
@@ -108,5 +125,35 @@ final class MusicConverterViewModel: ObservableObject {
                 continuation.resume(returning: seconds.isFinite && seconds > 0 ? seconds : 0)
             }
         }
+    }
+
+    /// Fetches duration (seconds) from the Piped `/streams/{videoID}` endpoint.
+    /// Tries each public instance in order; returns 0 if all fail.
+    nonisolated private static func pipedDuration(forVideoID videoID: String) async -> TimeInterval {
+        let instances = [
+            "https://pipedapi.kavin.rocks",
+            "https://pipedapi.adminforge.de",
+            "https://api.piped.private.coffee"
+        ]
+        for base in instances {
+            guard let url = URL(string: "\(base)/streams/\(videoID)") else { continue }
+            do {
+                var request = URLRequest(url: url)
+                request.timeoutInterval = 10
+                request.setValue("application/json", forHTTPHeaderField: "Accept")
+                let (data, _) = try await URLSession.shared.data(for: request)
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let duration = json["duration"] as? Int, duration > 0 {
+                    #if DEBUG
+                    print("[Duration] Piped returned \(duration)s from \(base)")
+                    #endif
+                    return TimeInterval(duration)
+                }
+            } catch { continue }
+        }
+        #if DEBUG
+        print("[Duration] All Piped instances failed for id: \(videoID)")
+        #endif
+        return 0
     }
 }
