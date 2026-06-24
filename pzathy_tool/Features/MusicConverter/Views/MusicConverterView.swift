@@ -37,12 +37,6 @@ struct MusicConverterView: View {
         .navigationTitle(loc.t(.musicConverter))
         .navigationBarTitleDisplayMode(.inline)
         .logPage("Music Converter")
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button(loc.t(.done)) { linkFieldFocused = false }
-            }
-        }
         .alert(loc.t(.noInternetTitle), isPresented: $showNoInternet) {
             Button(loc.t(.ok), role: .cancel) {}
         } message: {
@@ -193,6 +187,14 @@ struct MusicConverterView: View {
                             .tint(.blue)
                         }
                     }
+                }
+                // Reserve space so the floating player bar doesn't cover the
+                // last rows when a track is loaded.
+                if player.isActive {
+                    Color.clear
+                        .frame(height: 64)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
                 }
             }
             .listStyle(.plain)
