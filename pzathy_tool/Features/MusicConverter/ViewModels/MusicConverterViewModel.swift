@@ -71,25 +71,26 @@ final class MusicConverterViewModel: ObservableObject {
             lastConverted = track
             link = ""
 
-            // Some extractors (RapidAPI, occasionally Piped) don't report a
-            // duration, leaving the row stuck at 0:00. Probe the audio asset in
-            // the background and backfill it so the time shows without playing.
-            if track.duration <= 0 {
-                #if DEBUG
-                print("[Duration] track.duration is 0 for '\(track.title)' (id: \(track.id)) — probing…")
-                print("[Duration] playbackURL: \(track.playbackURL)")
-                #endif
-                Task { [weak library] in
-                    let seconds = await Self.resolveDuration(for: track)
+            // The extractor's stream URL is short-lived (the CDN expires it after a
+            // while), so playback would break for long or later sessions. Download
+            // the audio to local storage immediately — `Track.playbackURL` then
+            // prefers the persistent local file, so playback works anytime, offline,
+            // and isn't cut off when the remote link expires. Once the file is local
+            // we also backfill the duration from it (no extra download needed).
+            Task { [weak library] in
+                await library?.download(track)
+                let saved = library?.track(withID: track.id) ?? track
+                if saved.duration <= 0 {
                     #if DEBUG
-                    print("[Duration] resolved: \(seconds)s for id: \(track.id)")
+                    print("[Duration] track.duration is 0 for '\(saved.title)' (id: \(saved.id)) — probing…")
+                    print("[Duration] playbackURL: \(saved.playbackURL)")
                     #endif
-                    if seconds > 0 { library?.updateDuration(seconds, forTrackID: track.id) }
+                    let seconds = await Self.resolveDuration(for: saved)
+                    #if DEBUG
+                    print("[Duration] resolved: \(seconds)s for id: \(saved.id)")
+                    #endif
+                    if seconds > 0 { library?.updateDuration(seconds, forTrackID: saved.id) }
                 }
-            } else {
-                #if DEBUG
-                print("[Duration] track.duration = \(track.duration)s for '\(track.title)' (id: \(track.id))")
-                #endif
             }
             return true
         } catch {
