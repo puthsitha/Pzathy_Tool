@@ -127,15 +127,16 @@ final class MusicConverterViewModel: ObservableObject {
         }
     }
 
-    /// Fetches duration (seconds) from the Piped `/streams/{videoID}` endpoint.
-    /// Tries each public instance in order; returns 0 if all fail.
+    /// Fetches duration (seconds) from the Piped `/streams/{videoID}` endpoint,
+    /// then falls back to Invidious `/api/v1/videos/{videoID}` if all Piped instances fail.
     nonisolated private static func pipedDuration(forVideoID videoID: String) async -> TimeInterval {
-        let instances = [
+        // — Piped —
+        let pipedInstances = [
             "https://pipedapi.kavin.rocks",
             "https://pipedapi.adminforge.de",
             "https://api.piped.private.coffee"
         ]
-        for base in instances {
+        for base in pipedInstances {
             guard let url = URL(string: "\(base)/streams/\(videoID)") else { continue }
             do {
                 var request = URLRequest(url: url)
@@ -152,7 +153,33 @@ final class MusicConverterViewModel: ObservableObject {
             } catch { continue }
         }
         #if DEBUG
-        print("[Duration] All Piped instances failed for id: \(videoID)")
+        print("[Duration] All Piped instances failed for id: \(videoID) — trying Invidious…")
+        #endif
+
+        // — Invidious fallback —
+        let invidiousInstances = [
+            "https://inv.nadeko.net",
+            "https://invidious.nerdvpn.de",
+            "https://invidious.privacyredirect.com"
+        ]
+        for base in invidiousInstances {
+            guard let url = URL(string: "\(base)/api/v1/videos/\(videoID)?fields=lengthSeconds") else { continue }
+            do {
+                var request = URLRequest(url: url)
+                request.timeoutInterval = 10
+                request.setValue("application/json", forHTTPHeaderField: "Accept")
+                let (data, _) = try await URLSession.shared.data(for: request)
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let duration = json["lengthSeconds"] as? Int, duration > 0 {
+                    #if DEBUG
+                    print("[Duration] Invidious returned \(duration)s from \(base)")
+                    #endif
+                    return TimeInterval(duration)
+                }
+            } catch { continue }
+        }
+        #if DEBUG
+        print("[Duration] All Piped + Invidious instances failed for id: \(videoID)")
         #endif
         return 0
     }
