@@ -99,7 +99,7 @@ final class MusicConverterViewModel: ObservableObject {
     }
 
     /// Try asset-header probe first; if the CDN doesn't expose duration headers
-    /// (timescale 0 → nan), fall back to the Piped API using the YouTube video ID.
+    /// (timescale 0 → nan), download to a temp file and read locally.
     nonisolated private static func resolveDuration(for track: Track) async -> TimeInterval {
         // 1. Asset probe (fast, works when server sends Content-Duration / mp4 moov)
         let assetSeconds = await assetDuration(for: track.playbackURL)
@@ -108,20 +108,11 @@ final class MusicConverterViewModel: ObservableObject {
         #endif
         if assetSeconds > 0 { return assetSeconds }
 
-        // 2. Piped / Invidious metadata API using the YouTube video ID
+        // 2. Download the MP3 bytes to a temp file and let AVAsset read locally.
+        //    The CDN won't expose duration over HTTP, but the frames in a downloaded
+        //    file are always parseable. Temp file is deleted immediately after.
         #if DEBUG
-        print("[Duration] asset probe returned 0 — trying Piped/Invidious for id: \(track.id)")
-        #endif
-        let apiSeconds = await pipedDuration(forVideoID: track.id)
-        if apiSeconds > 0 { return apiSeconds }
-
-        // 3. Guaranteed fallback: download the MP3 bytes to a temp file and let
-        //    AVAsset read the duration locally (the CDN won't expose it over HTTP,
-        //    but the frames in the downloaded file are always parseable). Only the
-        //    streamURL is worth downloading — a local file would already have been
-        //    read by the asset probe in step 1.
-        #if DEBUG
-        print("[Duration] metadata APIs failed — downloading file to read duration locally…")
+        print("[Duration] asset probe returned 0 — downloading file to read duration locally…")
         #endif
         return await downloadedFileDuration(for: track.streamURL)
     }
@@ -164,62 +155,5 @@ final class MusicConverterViewModel: ObservableObject {
                 continuation.resume(returning: seconds.isFinite && seconds > 0 ? seconds : 0)
             }
         }
-    }
-
-    /// Fetches duration (seconds) from the Piped `/streams/{videoID}` endpoint,
-    /// then falls back to Invidious `/api/v1/videos/{videoID}` if all Piped instances fail.
-    nonisolated private static func pipedDuration(forVideoID videoID: String) async -> TimeInterval {
-        // — Piped —
-        let pipedInstances = [
-            "https://pipedapi.kavin.rocks",
-            "https://pipedapi.adminforge.de",
-            "https://api.piped.private.coffee"
-        ]
-        for base in pipedInstances {
-            guard let url = URL(string: "\(base)/streams/\(videoID)") else { continue }
-            do {
-                var request = URLRequest(url: url)
-                request.timeoutInterval = 10
-                request.setValue("application/json", forHTTPHeaderField: "Accept")
-                let (data, _) = try await URLSession.shared.data(for: request)
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let duration = json["duration"] as? Int, duration > 0 {
-                    #if DEBUG
-                    print("[Duration] Piped returned \(duration)s from \(base)")
-                    #endif
-                    return TimeInterval(duration)
-                }
-            } catch { continue }
-        }
-        #if DEBUG
-        print("[Duration] All Piped instances failed for id: \(videoID) — trying Invidious…")
-        #endif
-
-        // — Invidious fallback —
-        let invidiousInstances = [
-            "https://inv.nadeko.net",
-            "https://invidious.nerdvpn.de",
-            "https://invidious.privacyredirect.com"
-        ]
-        for base in invidiousInstances {
-            guard let url = URL(string: "\(base)/api/v1/videos/\(videoID)?fields=lengthSeconds") else { continue }
-            do {
-                var request = URLRequest(url: url)
-                request.timeoutInterval = 10
-                request.setValue("application/json", forHTTPHeaderField: "Accept")
-                let (data, _) = try await URLSession.shared.data(for: request)
-                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                   let duration = json["lengthSeconds"] as? Int, duration > 0 {
-                    #if DEBUG
-                    print("[Duration] Invidious returned \(duration)s from \(base)")
-                    #endif
-                    return TimeInterval(duration)
-                }
-            } catch { continue }
-        }
-        #if DEBUG
-        print("[Duration] All Piped + Invidious instances failed for id: \(videoID)")
-        #endif
-        return 0
     }
 }
