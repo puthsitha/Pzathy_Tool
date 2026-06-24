@@ -75,10 +75,21 @@ final class MusicConverterViewModel: ObservableObject {
             // duration, leaving the row stuck at 0:00. Probe the audio asset in
             // the background and backfill it so the time shows without playing.
             if track.duration <= 0 {
+                #if DEBUG
+                print("[Duration] track.duration is 0 for '\(track.title)' (id: \(track.id)) — probing asset…")
+                print("[Duration] playbackURL: \(track.playbackURL)")
+                #endif
                 Task { [weak library] in
                     let seconds = await Self.assetDuration(for: track.playbackURL)
+                    #if DEBUG
+                    print("[Duration] assetDuration result: \(seconds)s for id: \(track.id)")
+                    #endif
                     if seconds > 0 { library?.updateDuration(seconds, forTrackID: track.id) }
                 }
+            } else {
+                #if DEBUG
+                print("[Duration] track.duration = \(track.duration)s for '\(track.title)' (id: \(track.id))")
+                #endif
             }
             return true
         } catch {
