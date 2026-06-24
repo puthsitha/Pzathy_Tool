@@ -108,11 +108,50 @@ final class MusicConverterViewModel: ObservableObject {
         #endif
         if assetSeconds > 0 { return assetSeconds }
 
-        // 2. Piped API using the YouTube video ID
+        // 2. Piped / Invidious metadata API using the YouTube video ID
         #if DEBUG
-        print("[Duration] asset probe returned 0 — falling back to Piped API for id: \(track.id)")
+        print("[Duration] asset probe returned 0 — trying Piped/Invidious for id: \(track.id)")
         #endif
-        return await pipedDuration(forVideoID: track.id)
+        let apiSeconds = await pipedDuration(forVideoID: track.id)
+        if apiSeconds > 0 { return apiSeconds }
+
+        // 3. Guaranteed fallback: download the MP3 bytes to a temp file and let
+        //    AVAsset read the duration locally (the CDN won't expose it over HTTP,
+        //    but the frames in the downloaded file are always parseable). Only the
+        //    streamURL is worth downloading — a local file would already have been
+        //    read by the asset probe in step 1.
+        #if DEBUG
+        print("[Duration] metadata APIs failed — downloading file to read duration locally…")
+        #endif
+        return await downloadedFileDuration(for: track.streamURL)
+    }
+
+    /// Downloads the audio to a temporary file and reads its duration locally.
+    /// Reliable when the CDN doesn't expose duration over the network. The temp
+    /// file is removed afterwards. Returns 0 on any failure.
+    nonisolated private static func downloadedFileDuration(for url: URL) async -> TimeInterval {
+        do {
+            let (tempURL, _) = try await URLSession.shared.download(from: url)
+            // AVAsset sniffs type better with an extension; give it ".mp3".
+            let mp3URL = tempURL.appendingPathExtension("mp3")
+            let assetURL: URL
+            if (try? FileManager.default.moveItem(at: tempURL, to: mp3URL)) != nil {
+                assetURL = mp3URL
+            } else {
+                assetURL = tempURL
+            }
+            defer { try? FileManager.default.removeItem(at: assetURL) }
+            let seconds = await assetDuration(for: assetURL)
+            #if DEBUG
+            print("[Duration] local file probe returned \(seconds)s")
+            #endif
+            return seconds
+        } catch {
+            #if DEBUG
+            print("[Duration] download for duration failed: \(error.localizedDescription)")
+            #endif
+            return 0
+        }
     }
 
     /// Loads an audio asset's duration (seconds) without downloading the whole
