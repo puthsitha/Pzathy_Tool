@@ -95,11 +95,11 @@ final class LocalizationManager: ObservableObject {
 
     private static let english: [LKey: String] = [
         .home: "Home", .tools: "Tools", .settings: "Settings",
-        .appName: "Pzathy Tool",
+        .appName: "Pzathy Tools",
         .cancel: "Cancel", .done: "Done", .save: "Save", .search: "Search",
         .close: "Close", .retry: "Retry", .comingSoon: "Coming soon", .all: "All",
 
-        .loginTitle: "Welcome to Pzathy Tool",
+        .loginTitle: "Welcome to Pzathy Tools",
         .loginSubtitle: "Your everyday multi-tool kit",
         .username: "Username", .password: "Password", .signIn: "Sign In",
         .invalidCredentials: "Incorrect username or password",
@@ -151,11 +151,11 @@ final class LocalizationManager: ObservableObject {
 
     private static let khmer: [LKey: String] = [
         .home: "ទំព័រដើម", .tools: "ឧបករណ៍", .settings: "ការកំណត់",
-        .appName: "Pzathy Tool",
+        .appName: "Pzathy Tools",
         .cancel: "បោះបង់", .done: "រួចរាល់", .save: "រក្សាទុក", .search: "ស្វែងរក",
         .close: "បិទ", .retry: "ព្យាយាមម្ដងទៀត", .comingSoon: "នឹងមកដល់ឆាប់ៗ", .all: "ទាំងអស់",
 
-        .loginTitle: "សូមស្វាគមន៍មកកាន់ Pzathy Tool",
+        .loginTitle: "សូមស្វាគមន៍មកកាន់ Pzathy Tools",
         .loginSubtitle: "ឧបករណ៍ប្រើប្រាស់ប្រចាំថ្ងៃរបស់អ្នក",
         .username: "ឈ្មោះអ្នកប្រើ", .password: "ពាក្យសម្ងាត់", .signIn: "ចូល",
         .invalidCredentials: "ឈ្មោះអ្នកប្រើ ឬ ពាក្យសម្ងាត់មិនត្រឹមត្រូវ",
