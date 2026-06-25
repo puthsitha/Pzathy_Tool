@@ -10,18 +10,32 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject private var auth: AuthManager
     @EnvironmentObject private var theme: ThemeManager
+    @State private var showSplash = true
 
     var body: some View {
-        Group {
-            if auth.isAuthenticated {
-                MainTabView()
+        ZStack {
+            Group {
+                if auth.isAuthenticated {
+                    MainTabView()
+                        .transition(.opacity)
+                } else {
+                    LoginView()
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut, value: auth.isAuthenticated)
+
+            if showSplash {
+                SplashView()
                     .transition(.opacity)
-            } else {
-                LoginView()
-                    .transition(.opacity)
+                    .zIndex(1)
             }
         }
-        .animation(.easeInOut, value: auth.isAuthenticated)
         .preferredColorScheme(theme.theme.colorScheme)
+        .task {
+            // Hold the branded splash briefly, then reveal the app.
+            try? await Task.sleep(nanoseconds: 1_800_000_000)
+            withAnimation(.easeInOut(duration: 0.45)) { showSplash = false }
+        }
     }
 }
