@@ -100,7 +100,13 @@ final class LibraryStore: ObservableObject {
     func moveTracks(in playlist: Playlist, fromOffsets: IndexSet, toOffset: Int) {
         guard let idx = playlists.firstIndex(where: { $0.id == playlist.id }) else { return }
         var ids = tracks(in: playlist).map { $0.id }
-        ids.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        // Manual reorder so the service stays free of SwiftUI (which is where
+        // Collection.move(fromOffsets:toOffset:) is defined). Mirrors its
+        // semantics: `toOffset` is an index into the pre-removal array.
+        let moving = fromOffsets.sorted().map { ids[$0] }
+        for i in fromOffsets.sorted(by: >) { ids.remove(at: i) }
+        let insertAt = toOffset - fromOffsets.filter { $0 < toOffset }.count
+        ids.insert(contentsOf: moving, at: insertAt)
         playlists[idx].trackIDs = ids
         persistPlaylists()
     }
