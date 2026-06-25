@@ -56,7 +56,7 @@ enum RapidAPIConfig {
     }
 
     /// "low" | "high" — passed straight through as the `quality` query item.
-    static let quality = "low"
+    static let quality = "high"
 
     /// When true the API holds the request open until the file is ready (up to
     /// ~300 s), which is fragile and prone to URLSession timeouts. We poll for
