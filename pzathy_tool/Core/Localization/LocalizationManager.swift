@@ -59,6 +59,8 @@ enum LKey: String {
     case download, downloaded, downloading, share, play, pause, stop
     case shuffle, repeatTrack
     case createPlaylist, playlistName, newPlaylist, emptyLibrary, emptyLibraryHint
+    case editPlaylist, renamePlaylist, deletePlaylist, deletePlaylistConfirm
+    case changeImage, removeImage, coverImage
     case backgroundPlayback, backgroundPlaybackHint
     case artist, unknownArtist, removeFromLibrary, addToPlaylist
     case convertError, convertErrorTitle, invalidLink
@@ -126,6 +128,11 @@ final class LocalizationManager: ObservableObject {
         .shuffle: "Shuffle", .repeatTrack: "Repeat",
         .createPlaylist: "Create playlist", .playlistName: "Playlist name",
         .newPlaylist: "New Playlist",
+        .editPlaylist: "Edit playlist", .renamePlaylist: "Rename",
+        .deletePlaylist: "Delete playlist",
+        .deletePlaylistConfirm: "This playlist will be deleted. Your songs stay in your library.",
+        .changeImage: "Change image", .removeImage: "Remove image",
+        .coverImage: "Cover image",
         .emptyLibrary: "Your library is empty",
         .emptyLibraryHint: "Convert a YouTube link to add your first track.",
         .backgroundPlayback: "Background playback",
@@ -177,6 +184,11 @@ final class LocalizationManager: ObservableObject {
         .shuffle: "ច្របល់", .repeatTrack: "ចាក់ឡើងវិញ",
         .createPlaylist: "បង្កើតបញ្ជីចាក់", .playlistName: "ឈ្មោះបញ្ជីចាក់",
         .newPlaylist: "បញ្ជីចាក់ថ្មី",
+        .editPlaylist: "កែប្រែបញ្ជីចាក់", .renamePlaylist: "ប្ដូរឈ្មោះ",
+        .deletePlaylist: "លុបបញ្ជីចាក់",
+        .deletePlaylistConfirm: "បញ្ជីចាក់នេះនឹងត្រូវលុប។ បទចម្រៀងរបស់អ្នកនៅតែមាននៅក្នុងបណ្ណាល័យ។",
+        .changeImage: "ប្ដូររូបភាព", .removeImage: "លុបរូបភាព",
+        .coverImage: "រូបភាពគម្រប",
         .emptyLibrary: "បណ្ណាល័យរបស់អ្នកទទេ",
         .emptyLibraryHint: "បម្លែងតំណ YouTube ដើម្បីបន្ថែមបទដំបូងរបស់អ្នក។",
         .backgroundPlayback: "ការចាក់ផ្ទៃខាងក្រោយ",

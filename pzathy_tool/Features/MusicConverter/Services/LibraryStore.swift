@@ -77,7 +77,69 @@ final class LibraryStore: ObservableObject {
     }
 
     func deletePlaylist(_ playlist: Playlist) {
+        // Clean up any custom cover image so it doesn't linger on disk.
+        if let name = playlist.imageFileName {
+            try? FileManager.default.removeItem(
+                at: FileStorage.playlistImagesDirectory.appendingPathComponent(name))
+        }
         playlists.removeAll { $0.id == playlist.id }
+        persistPlaylists()
+    }
+
+    /// Renames a playlist. No-ops on an empty/whitespace name or unknown playlist.
+    func renamePlaylist(_ playlist: Playlist, to name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty,
+              let idx = playlists.firstIndex(where: { $0.id == playlist.id }) else { return }
+        playlists[idx].name = trimmed
+        persistPlaylists()
+    }
+
+    /// Reorders the songs in a playlist. Offsets are relative to the currently
+    /// displayed (resolvable) tracks; this also drops any stale ids as a bonus.
+    func moveTracks(in playlist: Playlist, fromOffsets: IndexSet, toOffset: Int) {
+        guard let idx = playlists.firstIndex(where: { $0.id == playlist.id }) else { return }
+        var ids = tracks(in: playlist).map { $0.id }
+        ids.move(fromOffsets: fromOffsets, toOffset: toOffset)
+        playlists[idx].trackIDs = ids
+        persistPlaylists()
+    }
+
+    // MARK: Playlist cover image
+
+    /// URL of a playlist's custom cover image, or nil if it has none.
+    func playlistImageURL(for playlist: Playlist) -> URL? {
+        guard let name = playlist.imageFileName else { return nil }
+        return FileStorage.playlistImagesDirectory.appendingPathComponent(name)
+    }
+
+    /// Stores a new cover image for a playlist, replacing any previous one. The
+    /// file name carries a fresh UUID so AsyncImage doesn't serve a stale cache.
+    func setPlaylistImage(_ data: Data, for playlist: Playlist) {
+        guard let idx = playlists.firstIndex(where: { $0.id == playlist.id }) else { return }
+        if let old = playlists[idx].imageFileName {
+            try? FileManager.default.removeItem(
+                at: FileStorage.playlistImagesDirectory.appendingPathComponent(old))
+        }
+        let fileName = "\(playlist.id)-\(UUID().uuidString).jpg"
+        let dest = FileStorage.playlistImagesDirectory.appendingPathComponent(fileName)
+        do {
+            try data.write(to: dest, options: .atomic)
+            playlists[idx].imageFileName = fileName
+            persistPlaylists()
+        } catch {
+            // Keep the previous cover (now nil reference) on write failure.
+        }
+    }
+
+    /// Removes a playlist's custom cover image (reverts to the track thumbnail).
+    func removePlaylistImage(_ playlist: Playlist) {
+        guard let idx = playlists.firstIndex(where: { $0.id == playlist.id }) else { return }
+        if let old = playlists[idx].imageFileName {
+            try? FileManager.default.removeItem(
+                at: FileStorage.playlistImagesDirectory.appendingPathComponent(old))
+        }
+        playlists[idx].imageFileName = nil
         persistPlaylists()
     }
 
