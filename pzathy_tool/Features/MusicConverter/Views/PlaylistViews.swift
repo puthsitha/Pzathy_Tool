@@ -22,6 +22,7 @@ struct PlaylistDetailView: View {
                 HStack(spacing: 16) {
                     Thumbnail(url: tracks.first?.thumbnailURL, cornerRadius: 14)
                         .frame(width: 96, height: 96)
+						.padding(.trailing, 16)
                     VStack(alignment: .leading, spacing: 6) {
                         Text(playlist.name).font(.title3).fontWeight(.bold)
                         Text("\(tracks.count) \(loc.t(.songs))")
@@ -50,7 +51,6 @@ struct PlaylistDetailView: View {
                         }
                         .padding(.top, 2)
                     }
-                    Spacer()
                 }
                 .listRowBackground(Color.clear)
             }
