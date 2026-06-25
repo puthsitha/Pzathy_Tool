@@ -76,6 +76,12 @@ final class AudioPlayerManager: ObservableObject {
     // MARK: - Public controls
 
     func play(_ track: Track, in tracks: [Track]? = nil) {
+        // Tapping the track that's already loaded should toggle play/pause
+        // rather than restart it from the beginning.
+        if currentTrack?.id == track.id, player != nil {
+            togglePlayPause()
+            return
+        }
         let newQueue = tracks ?? [track]
         queue = newQueue
         currentIndex = newQueue.firstIndex(of: track) ?? 0

@@ -23,6 +23,10 @@ struct HomeView: View {
                     recents
                 }
                 .padding(16)
+                // Extra room at the bottom so the floating now-playing bar
+                // doesn't cover the last recents while a track is playing.
+                .padding(.bottom, player.isActive ? 88 : 0)
+                .animation(.easeInOut(duration: 0.2), value: player.isActive)
             }
             .background(AppColor.background.ignoresSafeArea())
             .navigationTitle(loc.t(.home))
