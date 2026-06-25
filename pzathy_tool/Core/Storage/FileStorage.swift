@@ -21,6 +21,15 @@ enum FileStorage {
         return dir
     }
 
+    /// Folder where user-picked playlist cover images live.
+    static var playlistImagesDirectory: URL {
+        let dir = documentsDirectory.appendingPathComponent("PlaylistImages", isDirectory: true)
+        if !FileManager.default.fileExists(atPath: dir.path) {
+            try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        }
+        return dir
+    }
+
     static func loadJSON<T: Decodable>(_ type: T.Type, named name: String) -> T? {
         let url = documentsDirectory.appendingPathComponent(name)
         guard let data = try? Data(contentsOf: url) else { return nil }
