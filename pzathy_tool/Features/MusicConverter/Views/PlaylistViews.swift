@@ -26,7 +26,7 @@ struct PlaylistDetailView: View {
                         Text(playlist.name).font(.title3).fontWeight(.bold)
                         Text("\(tracks.count) \(loc.t(.songs))")
                             .font(.caption).foregroundColor(AppColor.secondaryText)
-                        HStack {
+                        HStack(spacing: 12) {
                             Button {
                                 if let first = tracks.first { player.play(first, in: tracks) }
                             } label: {
@@ -35,14 +35,20 @@ struct PlaylistDetailView: View {
                                     .background(AppColor.accent).foregroundColor(.white)
                                     .clipShape(Capsule())
                             }
+                            // .borderless keeps each button's tap target isolated;
+                            // without it a List row routes taps to every button, so
+                            // tapping Play would also trigger the share sheet.
+                            .buttonStyle(.borderless)
                             .disabled(tracks.isEmpty)
 
                             Button { showShare = true } label: {
                                 Image(systemName: "square.and.arrow.up")
                                     .padding(7).background(AppColor.surfaceElevated).clipShape(Circle())
                             }
+                            .buttonStyle(.borderless)
                             .disabled(tracks.isEmpty)
                         }
+                        .padding(.top, 2)
                     }
                     Spacer()
                 }
@@ -72,14 +78,15 @@ struct PlaylistDetailView: View {
 struct PlaylistsGrid: View {
     @EnvironmentObject private var library: LibraryStore
     @EnvironmentObject private var loc: LocalizationManager
+    @EnvironmentObject private var player: AudioPlayerManager
     @State private var showCreate = false
     @State private var newName = ""
 
-    private let columns = [GridItem(.adaptive(minimum: 150), spacing: 14)]
+    private let columns = [GridItem(.adaptive(minimum: 150), spacing: 16)]
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: 14) {
+            LazyVGrid(columns: columns, spacing: 16) {
                 createCard
                 ForEach(library.playlists) { playlist in
                     NavigationLink(destination: PlaylistDetailView(playlist: playlist)) {
@@ -88,7 +95,9 @@ struct PlaylistsGrid: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(16)
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, player.isActive ? 88 : 20)
         }
         .alert(loc.t(.newPlaylist), isPresented: $showCreate) {
             TextField(loc.t(.playlistName), text: $newName)
