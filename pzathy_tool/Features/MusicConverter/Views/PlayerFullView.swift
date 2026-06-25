@@ -29,63 +29,62 @@ struct PlayerFullView: View {
         }
     }
 
-    private func content(for track: Track) -> some View {
-        VStack(spacing: 0) {
-            grabber
+	private func content(for track: Track) -> some View {
+		ZStack(alignment: .top) {
+			ScrollView {
+				VStack(spacing: 22) {
+					Thumbnail(url: track.thumbnailURL, cornerRadius: 18)
+						.frame(maxWidth: 320)
+						.aspectRatio(1, contentMode: .fit)
+						.shadow(color: .black.opacity(0.2), radius: 18, y: 10)
+					
+					VStack(spacing: 6) {
+						Text(track.title)
+							.font(.title3).fontWeight(.bold)
+							.multilineTextAlignment(.center)
+						Text(track.artist)
+							.font(.subheadline)
+							.foregroundColor(AppColor.secondaryText)
+						if !track.details.isEmpty {
+							Text(track.details)
+								.font(.caption)
+								.foregroundColor(AppColor.tertiaryText)
+								.multilineTextAlignment(.center)
+								.lineLimit(2)
+								.padding(.top, 2)
+						}
+					}
+					.padding(.horizontal)
+					
+					seekBar
+					transportControls
+					secondaryActions(track)
+				}
+				.padding(20)
+				.frame(maxWidth: 520)
+				.frame(maxWidth: .infinity)
+			}
+			
+			// Floating grabber, overlaid above the scroll content (and the Thumbnail).
+			grabber
+		}
+		.background(AppColor.background.ignoresSafeArea())
+		.sheet(isPresented: $showShare) {
+			ShareSheet(items: ShareContent.items(for: [track]))
+		}
+		.sheet(isPresented: $showAddToPlaylist) {
+			AddToPlaylistView(track: track)
+		}
+	}
 
-            ScrollView {
-                VStack(spacing: 22) {
-                    Thumbnail(url: track.thumbnailURL, cornerRadius: 18)
-                        .frame(maxWidth: 320)
-                        .aspectRatio(1, contentMode: .fit)
-                        .shadow(color: .black.opacity(0.2), radius: 18, y: 10)
-                        .padding(.top, 8)
-
-                    VStack(spacing: 6) {
-                        Text(track.title)
-                            .font(.title3).fontWeight(.bold)
-                            .multilineTextAlignment(.center)
-                        Text(track.artist)
-                            .font(.subheadline)
-                            .foregroundColor(AppColor.secondaryText)
-                        if !track.details.isEmpty {
-                            Text(track.details)
-                                .font(.caption)
-                                .foregroundColor(AppColor.tertiaryText)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                                .padding(.top, 2)
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    seekBar
-
-                    transportControls
-
-                    secondaryActions(track)
-                }
-                .padding(20)
-                .frame(maxWidth: 520)
-                .frame(maxWidth: .infinity)
-            }
-        }
-        .background(AppColor.background.ignoresSafeArea())
-        .sheet(isPresented: $showShare) {
-            ShareSheet(items: ShareContent.items(for: [track]))
-        }
-        .sheet(isPresented: $showAddToPlaylist) {
-            AddToPlaylistView(track: track)
-        }
-    }
-
-    private var grabber: some View {
-        Capsule()
-            .fill(AppColor.tertiaryText.opacity(0.5))
-            .frame(width: 40, height: 5)
-            .padding(.top, 10)
-            .padding(.bottom, 4)
-    }
+	private var grabber: some View {
+		Capsule()
+			.fill(AppColor.tertiaryText)
+			.frame(width: 40, height: 5)
+			.padding(.vertical, 10)
+			.frame(maxWidth: .infinity)
+			.background(.ultraThinMaterial.opacity(0.001))
+	}
 
     private var seekBar: some View {
         VStack(spacing: 4) {
