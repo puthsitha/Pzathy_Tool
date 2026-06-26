@@ -15,7 +15,7 @@ struct PlayerFullView: View {
 
     @State private var isScrubbing = false
     @State private var scrubValue: Double = 0
-    @State private var showShare = false
+    @State private var shareItems: [Any]?
     @State private var showAddToPlaylist = false
 
     var body: some View {
@@ -69,9 +69,12 @@ struct PlayerFullView: View {
 			grabber
 		}
 		.background(AppColor.background.ignoresSafeArea())
-		.sheet(isPresented: $showShare) {
-			ShareSheet(items: ShareContent.items(for: [track]))
-		}
+		.sheet(isPresented: Binding(
+				get: { shareItems != nil },
+				set: { if !$0 { shareItems = nil } }
+			)) {
+				if let items = shareItems { ShareSheet(items: items) }
+			}
 		.sheet(isPresented: $showAddToPlaylist) {
 			AddToPlaylistView(track: track)
 		}
@@ -159,7 +162,7 @@ struct PlayerFullView: View {
                 .disabled(track.isDownloaded || library.isDownloading(track))
 
                 actionButton(icon: "square.and.arrow.up", label: loc.t(.share)) {
-                    showShare = true
+                    Task { shareItems = await ShareContent.asyncItems(for: [track]) }
                 }
 
                 actionButton(icon: "text.badge.plus", label: loc.t(.addToPlaylist)) {
