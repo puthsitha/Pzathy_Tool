@@ -64,6 +64,10 @@ final class AudioPlayerManager: ObservableObject {
     private var durationObserver: NSKeyValueObservation?
     private var currentIndex = 0
 
+    private var isInBackground = false
+    private var cachedArtwork: MPMediaItemArtwork?
+    private var artworkTrackID: String?
+
     init() {
         backgroundPlaybackEnabled = (UserDefaults.standard.object(forKey: Self.bgKey) as? Bool) ?? true
         repeatMode = RepeatMode(rawValue: UserDefaults.standard.string(forKey: Self.repeatKey) ?? "") ?? .off
@@ -183,6 +187,8 @@ final class AudioPlayerManager: ObservableObject {
         isPlaying = false
         currentTime = 0
         duration = 0
+        cachedArtwork = nil
+        artworkTrackID = nil
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 
@@ -248,6 +254,7 @@ final class AudioPlayerManager: ObservableObject {
             isPlaying = true
         }
         updateNowPlaying()
+        fetchArtwork(for: track)
     }
 
     /// Adopt a finite, positive duration from the player item, ignoring the
@@ -298,9 +305,22 @@ final class AudioPlayerManager: ObservableObject {
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 guard let self = self else { return }
+                self.isInBackground = true
+                // Remove artwork from lock screen when in background
+                self.updateNowPlaying()
                 if !self.backgroundPlaybackEnabled, self.isPlaying {
                     self.togglePlayPause()
                 }
+            }
+        }
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self = self else { return }
+                self.isInBackground = false
+                // Restore artwork on lock screen when returning to foreground
+                self.updateNowPlaying()
             }
         }
     }
@@ -330,15 +350,38 @@ final class AudioPlayerManager: ObservableObject {
         }
     }
 
+    /// Downloads the thumbnail for `track` and caches it as MPMediaItemArtwork,
+    /// then refreshes the Now Playing info so the lock screen shows the cover art.
+    private func fetchArtwork(for track: Track) {
+        guard let url = track.thumbnailURL else { return }
+        let trackID = track.id
+        Task.detached(priority: .utility) { [weak self] in
+            guard let (data, _) = try? await URLSession.shared.data(from: url),
+                  let image = UIImage(data: data) else { return }
+            let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+            await MainActor.run { [weak self] in
+                guard let self, self.currentTrack?.id == trackID else { return }
+                self.cachedArtwork = artwork
+                self.artworkTrackID = trackID
+                self.updateNowPlaying()
+            }
+        }
+    }
+
     private func updateNowPlaying() {
         guard let track = currentTrack else { return }
-        let info: [String: Any] = [
+        var info: [String: Any] = [
             MPMediaItemPropertyTitle: track.title,
             MPMediaItemPropertyArtist: track.artist,
             MPMediaItemPropertyPlaybackDuration: duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
         ]
+        // Show album art on the lock screen only while the app is in the foreground;
+        // hide it when backgrounded so the Now Playing widget stays minimal.
+        if !isInBackground, let artwork = cachedArtwork, artworkTrackID == track.id {
+            info[MPMediaItemPropertyArtwork] = artwork
+        }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = info
     }
 }

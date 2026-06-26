@@ -18,7 +18,7 @@ struct MusicConverterView: View {
 
     private enum Tab: Hashable { case songs, playlists }
     @State private var tab: Tab = .songs
-    @State private var shareTracks: [Track]?
+    @State private var shareItems: [Any]?
     @State private var showNoInternet = false
     @State private var showConvertError = false
     @FocusState private var linkFieldFocused: Bool
@@ -47,11 +47,13 @@ struct MusicConverterView: View {
         } message: {
             Text(loc.t(.convertError))
         }
-        .sheet(item: Binding(
-            get: { shareTracks.map { ShareBox(tracks: $0) } },
-            set: { shareTracks = $0?.tracks }
-        )) { box in
-            ShareSheet(items: ShareContent.items(for: box.tracks))
+        .sheet(isPresented: Binding(
+            get: { shareItems != nil },
+            set: { if !$0 { shareItems = nil } }
+        )) {
+            if let items = shareItems {
+                ShareSheet(items: items)
+            }
         }
     }
 
@@ -175,7 +177,7 @@ struct MusicConverterView: View {
                         } label: { Image(systemName: "trash") }
 
                         Button {
-                            shareTracks = [track]
+                            Task { shareItems = await ShareContent.asyncItems(for: [track]) }
                         } label: { Image(systemName: "square.and.arrow.up") }
                         .tint(AppColor.accent)
                     }
@@ -218,8 +220,3 @@ struct MusicConverterView: View {
     }
 }
 
-/// Identifiable wrapper so a `[Track]` can drive a `.sheet(item:)`.
-private struct ShareBox: Identifiable {
-    let id = UUID()
-    let tracks: [Track]
-}

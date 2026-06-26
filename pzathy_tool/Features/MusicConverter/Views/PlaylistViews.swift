@@ -13,7 +13,7 @@ struct PlaylistDetailView: View {
     @EnvironmentObject private var player: AudioPlayerManager
     @EnvironmentObject private var loc: LocalizationManager
     @Environment(\.dismiss) private var dismiss
-    @State private var showShare = false
+    @State private var shareItems: [Any]?
     @State private var showEdit = false
     @State private var showDeleteConfirm = false
 
@@ -56,7 +56,9 @@ struct PlaylistDetailView: View {
                             .buttonStyle(.borderless)
                             .disabled(tracks.isEmpty)
 
-                            Button { showShare = true } label: {
+                            Button {
+                                Task { shareItems = await ShareContent.asyncItems(for: tracks) }
+                            } label: {
                                 Image(systemName: "square.and.arrow.up")
                                     .padding(7).background(AppColor.surfaceElevated).clipShape(Circle())
                             }
@@ -110,8 +112,11 @@ struct PlaylistDetailView: View {
                 }
             }
         }
-        .sheet(isPresented: $showShare) {
-            ShareSheet(items: ShareContent.items(for: tracks))
+        .sheet(isPresented: Binding(
+            get: { shareItems != nil },
+            set: { if !$0 { shareItems = nil } }
+        )) {
+            if let items = shareItems { ShareSheet(items: items) }
         }
         .sheet(isPresented: $showEdit) {
             EditPlaylistView(playlist: live)

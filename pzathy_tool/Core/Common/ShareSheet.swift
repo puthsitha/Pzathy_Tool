@@ -20,10 +20,25 @@ struct ShareSheet: UIViewControllerRepresentable {
 
 /// What a user chose to share for a set of tracks.
 enum ShareContent {
-    /// Build share items: downloaded files when available, else the source links.
-    static func items(for tracks: [Track]) -> [Any] {
+    /// Async version: downloads thumbnails and builds rich share items
+    /// (title + description text, thumbnail image, then the audio file or link).
+    static func asyncItems(for tracks: [Track]) async -> [Any] {
         var result: [Any] = []
         for track in tracks {
+            // 1. Title + description text
+            var text = track.title
+            if !track.artist.isEmpty { text += " – \(track.artist)" }
+            if !track.details.isEmpty { text += "\n\(track.details)" }
+            result.append(text)
+
+            // 2. Thumbnail image (best-effort, skipped if unavailable)
+            if let url = track.thumbnailURL,
+               let (data, _) = try? await URLSession.shared.data(from: url),
+               let image = UIImage(data: data) {
+                result.append(image)
+            }
+
+            // 3. Audio: local file when downloaded, source link, or stream URL
             if let local = track.localFileURL,
                FileManager.default.fileExists(atPath: local.path) {
                 result.append(local)
