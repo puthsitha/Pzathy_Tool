@@ -16,6 +16,7 @@ struct Track: Identifiable, Codable, Equatable, Hashable {
     var sourceURL: URL?          // original YouTube link
     var streamURL: URL           // playable audio URL (remote or extracted)
     var duration: TimeInterval   // seconds (0 if unknown)
+    var year: Int? = nil         // release/publish year, when known
 
     /// Relative path (inside Documents) of the downloaded file, if any.
     var downloadedFileName: String?
