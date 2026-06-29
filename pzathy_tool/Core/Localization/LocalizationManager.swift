@@ -73,6 +73,12 @@ enum LKey: String {
     case roundsBeforeLongBreak, autoStartNext, soundAndHaptics
     case sessionsCompleted, minutesShort
 
+    // Utilities — converters
+    case unitConverter, currency
+    case from, to
+    case unitLength, unitMass, unitTemperature, unitVolume, unitSpeed, unitArea
+    case selectCurrency, lastUpdated, ratesError
+
     // Connectivity
     case noInternetTitle, noInternetMessage, offlineBanner, ok
 }
@@ -164,6 +170,13 @@ final class LocalizationManager: ObservableObject {
         .soundAndHaptics: "Sound & vibration",
         .sessionsCompleted: "Sessions completed", .minutesShort: "min",
 
+        .unitConverter: "Unit Converter", .currency: "Currency",
+        .from: "From", .to: "To",
+        .unitLength: "Length", .unitMass: "Weight", .unitTemperature: "Temperature",
+        .unitVolume: "Volume", .unitSpeed: "Speed", .unitArea: "Area",
+        .selectCurrency: "Select currency", .lastUpdated: "Updated",
+        .ratesError: "Couldn't load exchange rates.",
+
         .noInternetTitle: "No Internet Connection",
         .noInternetMessage: "Please check your connection and try again.",
         .offlineBanner: "You're offline",
@@ -232,6 +245,13 @@ final class LocalizationManager: ObservableObject {
         .autoStartNext: "ចាប់ផ្ដើមវគ្គបន្ទាប់ដោយស្វ័យប្រវត្តិ",
         .soundAndHaptics: "សំឡេង និងរំញ័រ",
         .sessionsCompleted: "វគ្គដែលបានបញ្ចប់", .minutesShort: "នាទី",
+
+        .unitConverter: "កម្មវិធីបម្លែងឯកតា", .currency: "រូបិយប័ណ្ណ",
+        .from: "ពី", .to: "ទៅ",
+        .unitLength: "ប្រវែង", .unitMass: "ទម្ងន់", .unitTemperature: "សីតុណ្ហភាព",
+        .unitVolume: "មាឌ", .unitSpeed: "ល្បឿន", .unitArea: "ផ្ទៃក្រឡា",
+        .selectCurrency: "ជ្រើសរើសរូបិយប័ណ្ណ", .lastUpdated: "បានធ្វើបច្ចុប្បន្នភាព",
+        .ratesError: "មិនអាចទាញយកអត្រាប្ដូរប្រាក់បានទេ។",
 
         .noInternetTitle: "គ្មានការតភ្ជាប់អ៊ីនធឺណិត",
         .noInternetMessage: "សូមពិនិត្យការតភ្ជាប់របស់អ្នក រួចព្យាយាមម្ដងទៀត។",

@@ -17,6 +17,10 @@ struct ToolDestinationView: View {
             MusicConverterView()
         case .pomodoro:
             PomodoroView()
+        case .unitConverter:
+            UnitConverterView()
+        case .currency:
+            CurrencyConverterView()
         case .comingSoon:
             ComingSoonView(tool: tool)
         }
