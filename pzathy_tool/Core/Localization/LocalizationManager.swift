@@ -65,6 +65,14 @@ enum LKey: String {
     case artist, unknownArtist, removeFromLibrary, addToPlaylist
     case convertError, convertErrorTitle, invalidLink
 
+    // Pomodoro timer
+    case pomodoroTimer, pomodoroDesc
+    case focus, shortBreak, longBreak
+    case startTimer, pauseTimer, resumeTimer, resetTimer, skip
+    case timerSettings, focusLength, shortBreakLength, longBreakLength
+    case roundsBeforeLongBreak, autoStartNext, soundAndHaptics
+    case sessionsCompleted, minutesShort
+
     // Connectivity
     case noInternetTitle, noInternetMessage, offlineBanner, ok
 }
@@ -143,6 +151,19 @@ final class LocalizationManager: ObservableObject {
         .convertErrorTitle: "Conversion Failed",
         .invalidLink: "Please paste a valid YouTube link.",
 
+        .pomodoroTimer: "Pomodoro Timer",
+        .pomodoroDesc: "Focus in timed sessions with short and long breaks.",
+        .focus: "Focus", .shortBreak: "Short Break", .longBreak: "Long Break",
+        .startTimer: "Start", .pauseTimer: "Pause", .resumeTimer: "Resume",
+        .resetTimer: "Reset", .skip: "Skip",
+        .timerSettings: "Timer Settings",
+        .focusLength: "Focus length", .shortBreakLength: "Short break",
+        .longBreakLength: "Long break",
+        .roundsBeforeLongBreak: "Rounds before long break",
+        .autoStartNext: "Auto-start next session",
+        .soundAndHaptics: "Sound & vibration",
+        .sessionsCompleted: "Sessions completed", .minutesShort: "min",
+
         .noInternetTitle: "No Internet Connection",
         .noInternetMessage: "Please check your connection and try again.",
         .offlineBanner: "You're offline",
@@ -198,6 +219,19 @@ final class LocalizationManager: ObservableObject {
         .convertError: "មិនអាចបម្លែងតំណនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។",
         .convertErrorTitle: "ការបម្លែងបរាជ័យ",
         .invalidLink: "សូមបិទភ្ជាប់តំណ YouTube ត្រឹមត្រូវ។",
+
+        .pomodoroTimer: "នាឡិកា Pomodoro",
+        .pomodoroDesc: "ផ្ដោតការងារតាមវគ្គ ជាមួយការសម្រាកខ្លី និងវែង។",
+        .focus: "ផ្ដោតអារម្មណ៍", .shortBreak: "សម្រាកខ្លី", .longBreak: "សម្រាកវែង",
+        .startTimer: "ចាប់ផ្ដើម", .pauseTimer: "ផ្អាក", .resumeTimer: "បន្ត",
+        .resetTimer: "កំណត់ឡើងវិញ", .skip: "រំលង",
+        .timerSettings: "ការកំណត់នាឡិកា",
+        .focusLength: "រយៈពេលផ្ដោតអារម្មណ៍", .shortBreakLength: "សម្រាកខ្លី",
+        .longBreakLength: "សម្រាកវែង",
+        .roundsBeforeLongBreak: "ចំនួនវគ្គមុនសម្រាកវែង",
+        .autoStartNext: "ចាប់ផ្ដើមវគ្គបន្ទាប់ដោយស្វ័យប្រវត្តិ",
+        .soundAndHaptics: "សំឡេង និងរំញ័រ",
+        .sessionsCompleted: "វគ្គដែលបានបញ្ចប់", .minutesShort: "នាទី",
 
         .noInternetTitle: "គ្មានការតភ្ជាប់អ៊ីនធឺណិត",
         .noInternetMessage: "សូមពិនិត្យការតភ្ជាប់របស់អ្នក រួចព្យាយាមម្ដងទៀត។",

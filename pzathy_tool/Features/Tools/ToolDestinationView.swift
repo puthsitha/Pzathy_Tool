@@ -15,6 +15,8 @@ struct ToolDestinationView: View {
         switch tool.route {
         case .musicConverter:
             MusicConverterView()
+        case .pomodoro:
+            PomodoroView()
         case .comingSoon:
             ComingSoonView(tool: tool)
         }
