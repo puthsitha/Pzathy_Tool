@@ -19,3 +19,19 @@ enum TimeFormat {
         return String(format: "%d:%02d", m, s)
     }
 }
+
+enum NumberFormat {
+    /// Formats a value with grouping and a trimmed number of fraction digits.
+    /// Returns "—" for non-finite values.
+    static func trimmed(_ value: Double,
+                        maxFractionDigits: Int = 6,
+                        minFractionDigits: Int = 0) -> String {
+        guard value.isFinite else { return "—" }
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.usesGroupingSeparator = true
+        formatter.maximumFractionDigits = maxFractionDigits
+        formatter.minimumFractionDigits = minFractionDigits
+        return formatter.string(from: NSNumber(value: value)) ?? String(value)
+    }
+}

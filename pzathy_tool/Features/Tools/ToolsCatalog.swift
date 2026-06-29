@@ -12,6 +12,8 @@ import SwiftUI
 enum ToolRoute: Equatable {
     case musicConverter
     case pomodoro
+    case unitConverter
+    case currency
     case comingSoon
 }
 
@@ -103,10 +105,12 @@ enum ToolsCatalog {
             tint: AppColor.accentDeep,
             categories: [
                 ToolCategory(id: "convert", name: "Converters", symbol: "arrow.left.arrow.right", tools: [
-                    Tool(id: "unit_convert", name: "Unit Converter",
-                         description: "Length, weight, temperature and more.", symbol: "ruler"),
-                    Tool(id: "currency", name: "Currency",
-                         description: "Convert between currencies.", symbol: "dollarsign.circle")
+                    Tool(id: "unit_convert", name: "Unit Converter", titleKey: .unitConverter,
+                         description: "Length, weight, temperature and more.", symbol: "ruler",
+                         route: .unitConverter),
+                    Tool(id: "currency", name: "Currency", titleKey: .currency,
+                         description: "Convert between currencies.", symbol: "dollarsign.circle",
+                         route: .currency)
                 ])
             ]
         )
