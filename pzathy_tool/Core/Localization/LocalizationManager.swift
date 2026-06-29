@@ -79,6 +79,11 @@ enum LKey: String {
     case unitLength, unitMass, unitTemperature, unitVolume, unitSpeed, unitArea
     case selectCurrency, lastUpdated, ratesError
 
+    // Spinner
+    case spinner, spinnerDesc, spin, spinAgain
+    case addItem, itemsHeader, clearAll
+    case removeAfterSpin, celebrationSound, winnerTitle, spinNeedItems
+
     // Connectivity
     case noInternetTitle, noInternetMessage, offlineBanner, ok
 }
@@ -177,6 +182,14 @@ final class LocalizationManager: ObservableObject {
         .selectCurrency: "Select currency", .lastUpdated: "Updated",
         .ratesError: "Couldn't load exchange rates.",
 
+        .spinner: "Spinner",
+        .spinnerDesc: "Add choices and spin to pick one.",
+        .spin: "Spin", .spinAgain: "Spin again",
+        .addItem: "Add an item", .itemsHeader: "Items", .clearAll: "Clear all",
+        .removeAfterSpin: "Remove winner after spin",
+        .celebrationSound: "Celebration sound",
+        .winnerTitle: "Winner", .spinNeedItems: "Add at least 2 items to spin.",
+
         .noInternetTitle: "No Internet Connection",
         .noInternetMessage: "Please check your connection and try again.",
         .offlineBanner: "You're offline",
@@ -252,6 +265,14 @@ final class LocalizationManager: ObservableObject {
         .unitVolume: "មាឌ", .unitSpeed: "ល្បឿន", .unitArea: "ផ្ទៃក្រឡា",
         .selectCurrency: "ជ្រើសរើសរូបិយប័ណ្ណ", .lastUpdated: "បានធ្វើបច្ចុប្បន្នភាព",
         .ratesError: "មិនអាចទាញយកអត្រាប្ដូរប្រាក់បានទេ។",
+
+        .spinner: "កង់បង្វិល",
+        .spinnerDesc: "បន្ថែមជម្រើស រួចបង្វិលដើម្បីជ្រើសរើសមួយ។",
+        .spin: "បង្វិល", .spinAgain: "បង្វិលម្ដងទៀត",
+        .addItem: "បន្ថែមធាតុ", .itemsHeader: "ធាតុ", .clearAll: "សម្អាតទាំងអស់",
+        .removeAfterSpin: "លុបអ្នកឈ្នះក្រោយបង្វិល",
+        .celebrationSound: "សំឡេងអបអរ",
+        .winnerTitle: "អ្នកឈ្នះ", .spinNeedItems: "បន្ថែមយ៉ាងតិច ២ ធាតុដើម្បីបង្វិល។",
 
         .noInternetTitle: "គ្មានការតភ្ជាប់អ៊ីនធឺណិត",
         .noInternetMessage: "សូមពិនិត្យការតភ្ជាប់របស់អ្នក រួចព្យាយាមម្ដងទៀត។",

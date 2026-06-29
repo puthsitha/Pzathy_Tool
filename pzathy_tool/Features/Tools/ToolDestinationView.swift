@@ -21,6 +21,8 @@ struct ToolDestinationView: View {
             UnitConverterView()
         case .currency:
             CurrencyConverterView()
+        case .spinner:
+            SpinnerView()
         case .comingSoon:
             ComingSoonView(tool: tool)
         }
