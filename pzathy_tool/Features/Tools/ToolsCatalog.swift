@@ -11,6 +11,7 @@ import SwiftUI
 
 enum ToolRoute: Equatable {
     case musicConverter
+    case pomodoro
     case comingSoon
 }
 
@@ -79,8 +80,9 @@ enum ToolsCatalog {
                          description: "Scan documents with your camera.", symbol: "doc.viewfinder")
                 ]),
                 ToolCategory(id: "time", name: "Time", symbol: "clock", tools: [
-                    Tool(id: "pomodoro", name: "Pomodoro Timer",
-                         description: "Focus sessions and breaks.", symbol: "timer")
+                    Tool(id: "pomodoro", name: "Pomodoro Timer", titleKey: .pomodoroTimer,
+                         description: "Focus sessions and breaks.", symbol: "timer",
+                         route: .pomodoro)
                 ])
             ]
         ),
