@@ -14,6 +14,7 @@ enum ToolRoute: Equatable {
     case pomodoro
     case unitConverter
     case currency
+    case spinner
     case comingSoon
 }
 
@@ -85,6 +86,11 @@ enum ToolsCatalog {
                     Tool(id: "pomodoro", name: "Pomodoro Timer", titleKey: .pomodoroTimer,
                          description: "Focus sessions and breaks.", symbol: "timer",
                          route: .pomodoro)
+                ]),
+                ToolCategory(id: "decide", name: "Decide", symbol: "shuffle", tools: [
+                    Tool(id: "spinner", name: "Spinner", titleKey: .spinner,
+                         description: "Add choices and spin to pick one.",
+                         symbol: "arrow.triangle.2.circlepath", route: .spinner)
                 ])
             ]
         ),
