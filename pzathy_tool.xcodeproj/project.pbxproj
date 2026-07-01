@@ -9,8 +9,8 @@
 /* Begin PBXFileReference section */
 		148978CD2FE049750096539D /* pzathy_tool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = pzathy_tool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14C0F1A02FE049770096539D /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
-		148978DA2FE0497700965401 /* PzathyToolsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PzathyToolsWidgetExtension/PzathyToolsWidget.swift; sourceTree = "<group>"; };
-		148978DA2FE0497700965402 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PzathyToolsWidgetExtension/Info.plist; sourceTree = "<group>"; };
+		148978DA2FE0497700965401 /* PzathyToolsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PzathyToolsWidget.swift; sourceTree = "<group>"; };
+		148978DA2FE0497700965402 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		148978DA2FE0497700965403 /* PzathyToolsWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = wrapper.app-extension; includeInIndex = 0; path = PzathyToolsWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -67,6 +67,7 @@
 			children = (
 				14C0F1A02FE049770096539D /* Secrets.xcconfig */,
 				148978CF2FE049750096539D /* pzathy_tool */,
+				148978DD2FE0497700965400 /* PzathyToolsWidgetExtension */,
 				148978CE2FE049750096539D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -127,9 +128,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				148978DD2FE0497700965400 /* PzathyToolsWidgetExtension */,
 			);
 			name = PzathyToolsWidgetExtension;
 			packageProductDependencies = (
