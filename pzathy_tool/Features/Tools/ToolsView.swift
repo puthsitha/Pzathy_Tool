@@ -40,15 +40,21 @@ struct ToolsView: View {
         }
         .navigationViewStyle(.stack)
         .logPage("Tools")
-        .onChange(of: router.deepLinkTool) { route in
-            guard let route = route,
-                  let tool = ToolsCatalog.availableTools.first(where: { $0.route == route }) else {
-                return
-            }
-            deepLinkTool = tool
-            showDeepLink = true
-            router.deepLinkTool = nil
+        // `.onChange` only fires on a transition, so a shortcut/widget tap that
+        // set `deepLinkTool` before this view ever mounted (e.g. right after
+        // login) would otherwise be missed since we'd already start at that value.
+        .onAppear { handleDeepLink(router.deepLinkTool) }
+        .onChange(of: router.deepLinkTool) { route in handleDeepLink(route) }
+    }
+
+    private func handleDeepLink(_ route: ToolRoute?) {
+        guard let route = route,
+              let tool = ToolsCatalog.availableTools.first(where: { $0.route == route }) else {
+            return
         }
+        deepLinkTool = tool
+        showDeepLink = true
+        router.deepLinkTool = nil
     }
 
     @ViewBuilder
