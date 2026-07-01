@@ -96,12 +96,59 @@ private extension View {
     /// or the system refuses to render the content (shows an "adopt containerBackground"
     /// placeholder instead). Falls back to a plain background on iOS 15/16.
     @ViewBuilder
-    func widgetBackground() -> some View {
+    func widgetBackground(_ color: Color = Color(.systemBackground)) -> some View {
         if #available(iOS 17.0, *) {
-            containerBackground(Color(.systemBackground), for: .widget)
+            containerBackground(color, for: .widget)
         } else {
-            background(Color(.systemBackground))
+            background(color)
         }
+    }
+}
+
+// MARK: - Lock screen widget
+
+@available(iOS 16.0, *)
+struct PzathyToolsLockScreenEntryView: View {
+    let entry: PzathyToolsWidgetEntry
+    @Environment(\.widgetFamily) private var family
+
+    private var musicURL: URL { URL(string: "pzathy-tool://musicConverter")! }
+
+    var body: some View {
+        Group {
+            switch family {
+            case .accessoryCircular:
+                Image(systemName: "wand.and.stars")
+                    .font(.title2)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            case .accessoryInline:
+                Label(WidgetLocalization.t("widgetTitle"), systemImage: "wand.and.stars")
+            default:
+                Label {
+                    Text(WidgetLocalization.t("shortcutMusicConverterSubtitle"))
+                } icon: {
+                    Image(systemName: "wand.and.stars")
+                }
+            }
+        }
+        // Lock screen accessory widgets are tinted by the system, not by us, and
+        // draw their own chrome — a solid background here would look wrong.
+        .widgetBackground(.clear)
+        .widgetURL(musicURL)
+    }
+}
+
+@available(iOS 16.0, *)
+struct PzathyToolsLockScreenWidget: Widget {
+    let kind: String = "PzathyToolsLockScreenWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: PzathyToolsWidgetProvider()) { entry in
+            PzathyToolsLockScreenEntryView(entry: entry)
+        }
+        .configurationDisplayName("Pzathy Tools")
+        .description("Quick access to Pzathy Tools from the Lock Screen.")
+        .supportedFamilies([.accessoryCircular, .accessoryRectangular, .accessoryInline])
     }
 }
 
@@ -136,6 +183,9 @@ private struct WidgetLocalization {
 struct PzathyToolsWidgetBundle: WidgetBundle {
     var body: some Widget {
         PzathyToolsWidget()
+        if #available(iOS 16.0, *) {
+            PzathyToolsLockScreenWidget()
+        }
     }
 }
 

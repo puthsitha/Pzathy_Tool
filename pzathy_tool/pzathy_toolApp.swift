@@ -76,6 +76,14 @@ struct pzathy_toolApp: App {
                         library?.updateDuration(duration, forTrackID: id)
                     }
                     updateShortcutItems()
+
+                    // A shortcut tapped while the app was fully terminated arrives
+                    // via launchOptions, not performActionFor, so route it now.
+                    if let item = appDelegate.pendingShortcutItem,
+                       let action = AppShortcutAction(shortcutItem: item) {
+                        router.open(shortcut: action)
+                        appDelegate.pendingShortcutItem = nil
+                    }
                 }
                 .onChange(of: localization.language) { _ in
                     updateShortcutItems()

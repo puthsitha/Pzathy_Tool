@@ -59,6 +59,18 @@ final class AppRouter: ObservableObject {
 final class AppShortcutDelegate: NSObject, UIApplicationDelegate {
     weak var router: AppRouter?
 
+    /// A shortcut tapped while the app was fully terminated. iOS delivers it via
+    /// `launchOptions` instead of `performActionFor` (that delegate method only
+    /// fires for a warm/backgrounded launch), so it's stashed here until the
+    /// router exists and the root view can consume it.
+    var pendingShortcutItem: UIApplicationShortcutItem?
+
+    func application(_ application: UIApplication,
+                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        pendingShortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem
+        return true
+    }
+
     func application(_ application: UIApplication,
                      performActionFor shortcutItem: UIApplicationShortcutItem,
                      completionHandler: @escaping (Bool) -> Void) {
