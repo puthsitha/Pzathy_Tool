@@ -52,9 +52,15 @@ struct ToolsView: View {
               let tool = ToolsCatalog.availableTools.first(where: { $0.route == route }) else {
             return
         }
-        deepLinkTool = tool
-        showDeepLink = true
         router.deepLinkTool = nil
+        deepLinkTool = tool
+        // Triggering the `isActive` push in the same runloop tick as a fresh tab
+        // selection (or this view's very first appearance) is unreliable — the
+        // underlying UINavigationController isn't always ready yet, so the push
+        // silently no-ops. A short delay lets it settle first.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            showDeepLink = true
+        }
     }
 
     @ViewBuilder
