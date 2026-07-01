@@ -25,7 +25,7 @@ struct PzathyToolsWidgetEntryView: View {
     let entry: PzathyToolsWidgetEntry
     @Environment(\.widgetFamily) private var family
 
-    private var musicURL: URL { URL(string: "pzathy-tool://music")! }
+    private var musicURL: URL { URL(string: "pzathy-tool://musicConverter")! }
     private var spinnerURL: URL { URL(string: "pzathy-tool://spinner")! }
     private var currencyURL: URL { URL(string: "pzathy-tool://currency")! }
     private var settingsURL: URL { URL(string: "pzathy-tool://settings")! }

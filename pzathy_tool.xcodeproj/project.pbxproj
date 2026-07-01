@@ -16,6 +16,7 @@
 
 /* Begin PBXBuildFile section */
 		148978DA2FE0497700965404 /* PzathyToolsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 148978DA2FE0497700965401 /* PzathyToolsWidget.swift */; };
+		148978DA2FE0497700965413 /* PzathyToolsWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 148978DA2FE0497700965403 /* PzathyToolsWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -25,6 +26,30 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXContainerItemProxy section */
+		148978DA2FE0497700965411 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 148978C52FE049750096539D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 148978DA2FE0497700965407;
+			remoteInfo = PzathyToolsWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		148978DA2FE0497700965414 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				148978DA2FE0497700965413 /* PzathyToolsWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		148978CA2FE049750096539D /* Frameworks */ = {
@@ -75,10 +100,12 @@
 				148978C92FE049750096539D /* Sources */,
 				148978CA2FE049750096539D /* Frameworks */,
 				148978CB2FE049750096539D /* Resources */,
+				148978DA2FE0497700965414 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				148978DA2FE0497700965412 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				148978CF2FE049750096539D /* pzathy_tool */,
@@ -180,6 +207,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		148978DA2FE0497700965412 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 148978DA2FE0497700965407 /* PzathyToolsWidgetExtension */;
+			targetProxy = 148978DA2FE0497700965411 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		148978D62FE049770096539D /* Debug */ = {
