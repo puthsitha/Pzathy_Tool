@@ -31,11 +31,10 @@ struct PzathyToolsWidgetEntryView: View {
     private var settingsURL: URL { URL(string: "pzathy-tool://settings")! }
 
     var body: some View {
-        switch family {
-        case .systemSmall:
-            Link(destination: musicURL) {
-                ZStack {
-                    Color(.systemBackground)
+        Group {
+            switch family {
+            case .systemSmall:
+                Link(destination: musicURL) {
                     VStack(alignment: .leading, spacing: 10) {
                         Label(WidgetLocalization.t("widgetTitle"), systemImage: "wand.and.stars")
                             .font(.headline)
@@ -46,31 +45,32 @@ struct PzathyToolsWidgetEntryView: View {
                             .lineLimit(2)
                     }
                     .padding(14)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 }
-            }
-        default:
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Label(WidgetLocalization.t("widgetTitle"), systemImage: "wand.and.stars")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    Spacer()
-                }
+            default:
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Label(WidgetLocalization.t("widgetTitle"), systemImage: "wand.and.stars")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+                        Spacer()
+                    }
 
-                VStack(spacing: 10) {
-                    HStack(spacing: 10) {
-                        widgetButton(title: WidgetLocalization.t("widgetMusic"), symbol: "music.note", destination: musicURL)
-                        widgetButton(title: WidgetLocalization.t("widgetSpinner"), symbol: "arrow.triangle.2.circlepath", destination: spinnerURL)
-                    }
-                    HStack(spacing: 10) {
-                        widgetButton(title: WidgetLocalization.t("widgetCurrency"), symbol: "dollarsign.circle", destination: currencyURL)
-                        widgetButton(title: WidgetLocalization.t("widgetSettings"), symbol: "gearshape", destination: settingsURL)
+                    VStack(spacing: 10) {
+                        HStack(spacing: 10) {
+                            widgetButton(title: WidgetLocalization.t("widgetMusic"), symbol: "music.note", destination: musicURL)
+                            widgetButton(title: WidgetLocalization.t("widgetSpinner"), symbol: "arrow.triangle.2.circlepath", destination: spinnerURL)
+                        }
+                        HStack(spacing: 10) {
+                            widgetButton(title: WidgetLocalization.t("widgetCurrency"), symbol: "dollarsign.circle", destination: currencyURL)
+                            widgetButton(title: WidgetLocalization.t("widgetSettings"), symbol: "gearshape", destination: settingsURL)
+                        }
                     }
                 }
+                .padding(14)
             }
-            .padding(14)
-            .background(Color(.systemBackground))
         }
+        .widgetBackground()
     }
 
     @ViewBuilder
@@ -91,6 +91,20 @@ struct PzathyToolsWidgetEntryView: View {
         }
     }
 }
+private extension View {
+    /// iOS 17+ requires widgets to supply their background via `containerBackground`
+    /// or the system refuses to render the content (shows an "adopt containerBackground"
+    /// placeholder instead). Falls back to a plain background on iOS 15/16.
+    @ViewBuilder
+    func widgetBackground() -> some View {
+        if #available(iOS 17.0, *) {
+            containerBackground(Color(.systemBackground), for: .widget)
+        } else {
+            background(Color(.systemBackground))
+        }
+    }
+}
+
 private struct WidgetLocalization {
     static func t(_ key: String) -> String {
         let language = Locale.current.languageCode
