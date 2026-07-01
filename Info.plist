@@ -4,6 +4,15 @@
 <dict>
 	<key>CFBundleDisplayName</key>
 	<string>Pzathy Tools</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>pzathy-tool</string>
+			</array>
+		</dict>
+	</array>
 	<key>RapidAPIKey</key>
 	<string>$(RAPIDAPI_KEY)</string>
 	<key>UIBackgroundModes</key>

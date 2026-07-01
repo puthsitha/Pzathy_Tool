@@ -52,6 +52,15 @@ enum LKey: String {
     case account, language, theme, themeSystem, themeLight, themeDark
     case logout, logoutConfirm, preferences, about, version
 
+    // Shortcuts
+    case shortcutMusicConverterTitle, shortcutMusicConverterSubtitle
+    case shortcutSpinnerTitle, shortcutSpinnerSubtitle
+    case shortcutCurrencyTitle, shortcutCurrencySubtitle
+    case shortcutSettingsTitle, shortcutSettingsSubtitle
+
+    // Widget
+    case widgetTitle, widgetMusic, widgetSpinner, widgetCurrency, widgetSettings
+
     // Music converter
     case musicConverter, musicConverterDesc
     case pasteYoutubeLink, convert, converting, addToLibrary
@@ -140,6 +149,19 @@ final class LocalizationManager: ObservableObject {
         .musicConverterDesc: "Convert YouTube links to audio you can play, save and share.",
         .pasteYoutubeLink: "Paste a YouTube link",
         .convert: "Convert", .converting: "Converting…", .addToLibrary: "Add to library",
+        .shortcutMusicConverterTitle: "Music Converter",
+        .shortcutMusicConverterSubtitle: "Open the music converter",
+        .shortcutSpinnerTitle: "Spinner",
+        .shortcutSpinnerSubtitle: "Open the spinner tool",
+        .shortcutCurrencyTitle: "Currency",
+        .shortcutCurrencySubtitle: "Open currency conversion",
+        .shortcutSettingsTitle: "Settings",
+        .shortcutSettingsSubtitle: "Open app settings",
+        .widgetTitle: "Pzathy Tools",
+        .widgetMusic: "Music",
+        .widgetSpinner: "Spinner",
+        .widgetCurrency: "Currency",
+        .widgetSettings: "Settings",
         .library: "Library", .playlists: "Playlists", .songs: "Songs",
         .nowPlaying: "Now Playing", .queue: "Queue",
         .download: "Download", .downloaded: "Downloaded", .downloading: "Downloading…",
@@ -245,6 +267,19 @@ final class LocalizationManager: ObservableObject {
         .convertError: "មិនអាចបម្លែងតំណនេះបានទេ។ សូមព្យាយាមម្ដងទៀត។",
         .convertErrorTitle: "ការបម្លែងបរាជ័យ",
         .invalidLink: "សូមបិទភ្ជាប់តំណ YouTube ត្រឹមត្រូវ។",
+        .shortcutMusicConverterTitle: "កម្មវិធីបម្លែងតន្ត្រី",
+        .shortcutMusicConverterSubtitle: "បើកកម្មវិធីបម្លែងតន្ត្រី",
+        .shortcutSpinnerTitle: "កង់បង្វិល",
+        .shortcutSpinnerSubtitle: "បើកឧបករណ៍កង់បង្វិល",
+        .shortcutCurrencyTitle: "រូបិយប័ណ្ណ",
+        .shortcutCurrencySubtitle: "បើកការបម្លែងរូបិយប័ណ្ណ",
+        .shortcutSettingsTitle: "ការកំណត់",
+        .shortcutSettingsSubtitle: "បើកការកំណត់កម្មវិធី",
+        .widgetTitle: "Pzathy Tools",
+        .widgetMusic: "តន្ត្រី",
+        .widgetSpinner: "កង់បង្វិល",
+        .widgetCurrency: "រូបិយប័ណ្ណ",
+        .widgetSettings: "ការកំណត់",
 
         .pomodoroTimer: "នាឡិកា Pomodoro",
         .pomodoroDesc: "ផ្ដោតការងារតាមវគ្គ ជាមួយការសម្រាកខ្លី និងវែង។",

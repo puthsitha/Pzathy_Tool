@@ -9,27 +9,55 @@ import SwiftUI
 
 struct ToolsView: View {
     @EnvironmentObject private var loc: LocalizationManager
+    @EnvironmentObject private var router: AppRouter
     @State private var search = ""
+    @State private var deepLinkTool: Tool? = nil
+    @State private var showDeepLink = false
 
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    ForEach(filteredFields) { field in
-                        NavigationLink(destination: FieldDetailView(field: field)) {
-                            FieldCard(field: field)
-                        }
-                        .buttonStyle(.plain)
-                    }
+            ZStack {
+                NavigationLink(destination: deepLinkDestination, isActive: $showDeepLink) {
+                    EmptyView()
                 }
-                .padding(16)
+                .hidden()
+
+                ScrollView {
+                    LazyVStack(spacing: 16) {
+                        ForEach(filteredFields) { field in
+                            NavigationLink(destination: FieldDetailView(field: field)) {
+                                FieldCard(field: field)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(16)
+                }
+                .background(AppColor.background.ignoresSafeArea())
+                .navigationTitle(loc.t(.tools))
+                .searchable(text: $search, prompt: loc.t(.search))
             }
-            .background(AppColor.background.ignoresSafeArea())
-            .navigationTitle(loc.t(.tools))
-            .searchable(text: $search, prompt: loc.t(.search))
         }
         .navigationViewStyle(.stack)
         .logPage("Tools")
+        .onChange(of: router.deepLinkTool) { route in
+            guard let route = route,
+                  let tool = ToolsCatalog.availableTools.first(where: { $0.route == route }) else {
+                return
+            }
+            deepLinkTool = tool
+            showDeepLink = true
+            router.deepLinkTool = nil
+        }
+    }
+
+    @ViewBuilder
+    private var deepLinkDestination: some View {
+        if let deepLinkTool {
+            ToolDestinationView(tool: deepLinkTool)
+        } else {
+            EmptyView()
+        }
     }
 
     private var filteredFields: [ToolField] {

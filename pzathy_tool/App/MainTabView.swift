@@ -10,12 +10,12 @@ import SwiftUI
 struct MainTabView: View {
     @EnvironmentObject private var loc: LocalizationManager
     @EnvironmentObject private var player: AudioPlayerManager
-    @State private var selection = 0
+    @EnvironmentObject private var router: AppRouter
 
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .bottom) {
-                TabView(selection: $selection) {
+                TabView(selection: $router.selectedTab) {
                     HomeView()
                         .tabItem { Label(loc.t(.home), systemImage: "house.fill") }
                         .tag(0)

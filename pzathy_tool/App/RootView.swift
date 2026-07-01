@@ -10,6 +10,7 @@ import SwiftUI
 struct RootView: View {
     @EnvironmentObject private var auth: AuthManager
     @EnvironmentObject private var theme: ThemeManager
+    @EnvironmentObject private var router: AppRouter
     @State private var showSplash = true
 
     var body: some View {
